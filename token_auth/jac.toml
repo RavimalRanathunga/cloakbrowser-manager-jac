@@ -1,0 +1,7 @@
+[project]
+name = "token_auth"
+kind = "plugin"
+
+[plugin]
+fills = "auth"
+class = "token_auth.auth.TokenAuth"

@@ -1,4 +1,4 @@
-"""The Manager's server: profiles, tags, files and settings, kept as a graph under root.shared."""
+"""The Manager's server: profiles, tags, files and settings, kept as a graph under root."""
 
 import os;
 import json;
@@ -172,7 +172,7 @@ def find_profile(profile_id: str) -> Profile | None {
 }
 
 def all_profiles -> list[Profile] {
-    return [root.shared --> [?:Profile]];
+    return [root --> [?:Profile]];
 }
 
 """sort_order ascending, then created_at descending (the original's SQL ORDER BY)."""
@@ -357,19 +357,19 @@ def:pub health -> str {
     return "ok";
 }
 
-def:pub runtime_config -> ConfigOut {
+def:protect runtime_config -> ConfigOut {
     return ConfigOut(sidebar_width=sidebar_width());
 }
 
 def:pub auth_status -> AuthStatusOut {
-    return AuthStatusOut(auth_required=False, authenticated=False);
+    return AuthStatusOut(auth_required=os.environ.get("AUTH_TOKEN", "") != "", authenticated=False);
 }
 
-def:pub list_profiles -> ProfilesReply {
+def:protect list_profiles -> ProfilesReply {
     return ProfilesReply(profiles=[to_out(p) for p in ordered_profiles()]);
 }
 
-def:pub get_profile(profile_id: str) -> ProfileReply {
+def:protect get_profile(profile_id: str) -> ProfileReply {
     p = find_profile(profile_id);
     if p is None {
         return not_found();
@@ -377,7 +377,7 @@ def:pub get_profile(profile_id: str) -> ProfileReply {
     return ProfileReply(profile=to_out(p));
 }
 
-def:pub create_profile(fields_json: str) -> ProfileReply {
+def:protect create_profile(fields_json: str) -> ProfileReply {
     data = parse_object(fields_json);
     if data is None {
         return ProfileReply(status=422, detail="body: Input should be a valid JSON object");
@@ -402,12 +402,12 @@ def:pub create_profile(fields_json: str) -> ProfileReply {
         );
         p.user_data_dir = user_data_dir_for(jid(p));
         apply_fields(p, data);
-        root.shared ++> p;
+        root ++> p;
         return ProfileReply(status=201, profile=to_out(p));
     }
 }
 
-def:pub update_profile(profile_id: str, fields_json: str) -> ProfileReply {
+def:protect update_profile(profile_id: str, fields_json: str) -> ProfileReply {
     p = find_profile(profile_id);
     if p is None {
         return not_found();
@@ -427,7 +427,7 @@ def:pub update_profile(profile_id: str, fields_json: str) -> ProfileReply {
     return ProfileReply(profile=to_out(p));
 }
 
-def:pub reorder_profiles(ordered_ids: list[str]) -> OkReply {
+def:protect reorder_profiles(ordered_ids: list[str]) -> OkReply {
     with lock {
         for (index, pid) in enumerate(ordered_ids) {
             p = find_profile(pid);
@@ -439,7 +439,7 @@ def:pub reorder_profiles(ordered_ids: list[str]) -> OkReply {
     return OkReply();
 }
 
-def:pub delete_profile(profile_id: str) -> OkReply {
+def:protect delete_profile(profile_id: str) -> OkReply {
     p = find_profile(profile_id);
     if p is None {
         return OkReply(status=404, detail="Profile not found");
@@ -459,7 +459,7 @@ def:pub delete_profile(profile_id: str) -> OkReply {
     return OkReply();
 }
 
-def:pub reset_profile(profile_id: str) -> ProfileReply {
+def:protect reset_profile(profile_id: str) -> ProfileReply {
     p = find_profile(profile_id);
     if p is None {
         return not_found();
@@ -484,7 +484,7 @@ def:pub reset_profile(profile_id: str) -> ProfileReply {
     return ProfileReply(profile=to_out(p));
 }
 
-def:pub duplicate_profile(profile_id: str, options_json: str = "") -> ProfileReply {
+def:protect duplicate_profile(profile_id: str, options_json: str = "") -> ProfileReply {
     src = find_profile(profile_id);
     if src is None {
         return not_found();
@@ -559,12 +559,12 @@ def:pub duplicate_profile(profile_id: str, options_json: str = "") -> ProfileRep
         for t in [src ->:HasTag:->] {
             clone +>:HasTag:+> Tag(tag=t.tag, color=t.color);
         }
-        root.shared ++> clone;
+        root ++> clone;
         return ProfileReply(status=201, profile=to_out(clone));
     }
 }
 
-def:pub launch_profile(profile_id: str) -> LaunchReply {
+def:protect launch_profile(profile_id: str) -> LaunchReply {
     p = find_profile(profile_id);
     if p is None {
         return LaunchReply(status=404, detail="Profile not found");
@@ -576,7 +576,7 @@ def:pub launch_profile(profile_id: str) -> LaunchReply {
     return LaunchReply(profile_id=profile_id, cdp_url="/api/profiles/" + profile_id + "/cdp");
 }
 
-def:pub stop_profile(profile_id: str) -> OkReply {
+def:protect stop_profile(profile_id: str) -> OkReply {
     if profile_id not in running {
         return OkReply(status=404, detail="Profile is not running");
     }
@@ -584,7 +584,7 @@ def:pub stop_profile(profile_id: str) -> OkReply {
     return OkReply();
 }
 
-def:pub profile_status(profile_id: str) -> LaunchReply {
+def:protect profile_status(profile_id: str) -> LaunchReply {
     p = find_profile(profile_id);
     if p is None {
         return LaunchReply(status=404, detail="Profile not found");
@@ -601,7 +601,7 @@ def load_settings {
     if settings_loaded {
         return;
     }
-    found = [root.shared --> [?:Settings]];
+    found = [root --> [?:Settings]];
     stored_key = "";
     stored_channel = "";
     if len(found) > 0 {
@@ -615,11 +615,11 @@ def load_settings {
     settings_loaded = True;
 }
 
-def:pub system_status -> StatusOut {
+def:protect system_status -> StatusOut {
     return StatusOut(running_count=len(running), profiles_total=len(all_profiles()));
 }
 
-def:pub get_settings -> SettingsOut {
+def:protect get_settings -> SettingsOut {
     load_settings();
     key: str | None = None;
     if live_key != "" {
@@ -634,7 +634,7 @@ def:pub get_settings -> SettingsOut {
     );
 }
 
-def:pub put_settings(patch_json: str) -> StatusOut {
+def:protect put_settings(patch_json: str) -> StatusOut {
     load_settings();
     data = parse_object(patch_json);
     if data is None {
@@ -656,12 +656,12 @@ def:pub put_settings(patch_json: str) -> StatusOut {
             return StatusOut(status=400, detail="release_channel must be 'stable' or 'preview'");
         }
     }
-    found = [root.shared --> [?:Settings]];
+    found = [root --> [?:Settings]];
     st: Settings;
     if len(found) > 0 {
         st = found[0];
     } else {
-        st = root.shared ++> Settings();
+        st = root ++> Settings();
     }
     if "license_key" in data and data["license_key"] is not None {
         raw_key = data["license_key"];
@@ -731,7 +731,7 @@ def check_quota(p: Profile, incoming: int) -> str {
     return "";
 }
 
-def:pub list_files(profile_id: str) -> ArtifactsReply {
+def:protect list_files(profile_id: str) -> ArtifactsReply {
     p = find_profile(profile_id);
     if p is None {
         return ArtifactsReply(status=404, detail="Profile not found");
@@ -744,7 +744,7 @@ def:pub list_files(profile_id: str) -> ArtifactsReply {
     return ArtifactsReply(artifacts=[to_artifact_out(profile_id, a) for a in files]);
 }
 
-def:pub upload_file(
+def:protect upload_file(
     profile_id: str, name: str, data: bytes, content_type: str = ""
 ) -> ArtifactReply {
     p = find_profile(profile_id);
@@ -776,7 +776,7 @@ def:pub upload_file(
     }
 }
 
-def:pub download_file(profile_id: str, artifact_id: str) -> FileReply {
+def:protect download_file(profile_id: str, artifact_id: str) -> FileReply {
     p = find_profile(profile_id);
     if p is None {
         return FileReply(status=404, detail="Profile not found");
@@ -797,7 +797,7 @@ def:pub download_file(profile_id: str, artifact_id: str) -> FileReply {
     }
 }
 
-def:pub delete_file(profile_id: str, artifact_id: str) -> OkReply {
+def:protect delete_file(profile_id: str, artifact_id: str) -> OkReply {
     p = find_profile(profile_id);
     if p is None {
         return OkReply(status=404, detail="Profile not found");

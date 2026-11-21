@@ -1,0 +1,5 @@
+neojac test: 1 module with tests, 1 to build, on linux-x86_64
+auth.jac: 3 passed
+
+3 passed; 1 of 1 module passed in 37.9s
+EXIT=0 PEAK_SYSTEM_USED_MB=3221 (baseline before: see free)
