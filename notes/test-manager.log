@@ -1,0 +1,3 @@
+neojac test: 1 module with tests, 1 to build, on linux-x86_64
+WATCHDOG: MemAvailable=486MB, killing group 3671
+EXIT=137 PEAK_SYSTEM_USED_MB=3279 (baseline before: see free)

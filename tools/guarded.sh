@@ -10,7 +10,7 @@ PEAK=0
 while kill -0 $PID 2>/dev/null; do
   AVAIL=$(awk '/MemAvailable/ {print int($2/1024)}' /proc/meminfo)
   USED=$((TOTAL-AVAIL)); [ $USED -gt $PEAK ] && PEAK=$USED
-  if [ "$AVAIL" -lt 500 ]; then
+  if [ "$AVAIL" -lt ${MEM_FLOOR:-500} ]; then
     echo "WATCHDOG: MemAvailable=${AVAIL}MB, killing group $PID" >> "$LOG"
     kill -9 -- -$PID 2>/dev/null; break
   fi
