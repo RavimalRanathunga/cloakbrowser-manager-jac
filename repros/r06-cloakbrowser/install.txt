@@ -1,0 +1,3 @@
+neojac install: 26 PyPI distributions in .jac/venv
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:06.02
+	Maximum resident set size (kbytes): 263756

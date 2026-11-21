@@ -1,0 +1,24 @@
+pure.jac:1:1: error[W3051]: a docstring: documentation lives in the project's README or docs, not in the source, by design; `neojac fmt --fix` removes it [strip-docstrings]
+ 1 | """Pure helpers lifted verbatim from CloakBrowser-Manager backend/main.py (and slimmed to port's core)."""
+   | ^
+
+pure.jac:3:1: error[W3055]: the body of 'mask_key' belongs in an impl: a module reads as its declarations, by design; `neojac fmt --fix` moves the body to the module's impl annex [separate-impls]
+ 3 | def mask_key(key: any) -> any {
+   | ^
+
+pure.jac:13:1: error[W3055]: the body of 'parse_version' belongs in an impl: a module reads as its declarations, by design; `neojac fmt --fix` moves the body to the module's impl annex [separate-impls]
+ 13 | def parse_version(text: any) -> any {
+    | ^
+
+pure.jac:28:1: error[W3055]: the body of 'version_gt' belongs in an impl: a module reads as its declarations, by design; `neojac fmt --fix` moves the body to the module's impl annex [separate-impls]
+ 28 | def version_gt(latest: any, current: any) -> any {
+    | ^
+
+pure.jac:44:1: error[W3055]: the body of 'netloc_of' belongs in an impl: a module reads as its declarations, by design; `neojac fmt --fix` moves the body to the module's impl annex [separate-impls]
+ 44 | def netloc_of(host: any, port: any) -> any {
+    | ^
+
+check exit=1
+fmt exit=0
+	Maximum resident set size (kbytes): 395280
+SAME

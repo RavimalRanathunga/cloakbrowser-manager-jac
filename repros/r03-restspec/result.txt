@@ -1,0 +1,17 @@
+svc.jac:8:18: error[E0108]: cannot evaluate at compile time: neojac evaluates only enum members and methods as attributes
+ 8 | @restspec(method=HTTPMethod.PUT, path="/p")
+   |                  ^^^^^^^^^^^^^^
+    in app 'api'
+
+svc.jac:13:18: error[E0108]: cannot evaluate at compile time: neojac evaluates only enum members and methods as attributes
+ 13 | @restspec(method=HTTPMethod.DELETE, path="/p")
+    |                  ^^^^^^^^^^^^^^^^^
+    in app 'api'
+
+/home/ravimal/.neojac/0.3.3/rt/stdjac/server.jac:346:5: error[E0109]: comptime assertion failed: a function served at a path of its own takes no parameters
+ 346 |     comptime assert len(params(f))
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    in app 'api'
+
+3 errors
+`neojac docs E0108` explains an error by its code.

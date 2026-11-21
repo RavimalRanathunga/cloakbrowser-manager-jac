@@ -1,0 +1,10 @@
+## nullable, no default: {a:null}
+{"ok": false, "kind": "rejected", "detail": "nullable_nodefault: .a: expected a str, got None"}
+## int|None=None : {n:null}
+{"ok": true, "data": "n=None"}
+## int|None=None : {}
+{"ok": true, "data": "n=None"}
+## obj with None fields: {p:{proxy:null}}
+{"ok": false, "kind": "rejected", "detail": "patch_obj: .p.proxy: expected a str, got None"}
+## obj with None fields: {p:{}} (absent)
+{"ok": true, "data": "None,None"}

@@ -1,0 +1,20 @@
+## bytes arg 3MB real (6MB hex)
+{"ok": true, "data": 3000000}
+## bytes arg 9MB real (18MB hex JSON > 16MiB)
+HTTP/1.1 413 Content Too Large
+Content-Type: text/plain
+Content-Length: 31
+Connection: close
+
+the request's body is too large
+## chunked body
+HTTP/1.1 411 Length Required
+Content-Type: text/plain
+Content-Length: 51
+Connection: close
+
+a body is read by its Content-Length, not in chunks
+## response bytes 1MB size
+2000024
+## server RSS kB
+211336

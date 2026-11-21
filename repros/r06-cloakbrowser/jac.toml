@@ -1,0 +1,7 @@
+[project]
+name = "r06"
+[check.lint]
+select = ["style"]
+
+[dependencies.pypi]
+cloakbrowser = "[geoip]"

@@ -1,0 +1,6 @@
+Hello.tsx: error[E4004]: 'Hello.tsx' is no source port translates: one is known by its extension, one of .c, .cc, .cjs, .cpp, .cxx, .h, .hpp, .js, .mjs, .py, .rs, .ts
+1 source refused, nothing written for it
+`neojac docs port` says what port translates and what it refuses.
+exit=1
+port: 1 source would port
+exit=0

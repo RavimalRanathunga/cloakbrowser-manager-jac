@@ -1,0 +1,34 @@
+# Written by neojac: what each ecosystem's own resolver pinned for jac.toml.
+# `neojac install --frozen` installs exactly this.
+version = 1
+
+[pypi]
+resolved = [
+    "aiohappyeyeballs==2.7.1",
+    "aiohttp==3.14.5",
+    "aiosignal==1.4.0",
+    "anyio==4.16.0",
+    "attrs==26.1.0",
+    "certifi==2026.11.20",
+    "cffi==2.1.1",
+    "charset-normalizer==3.5.2",
+    "cloakbrowser==0.7.3",
+    "cryptography==50.0.2",
+    "frozenlist==1.8.0",
+    "geoip2==5.4.0",
+    "greenlet==3.5.6",
+    "h11==0.16.0",
+    "httpcore==1.0.9",
+    "httpx==0.28.1",
+    "idna==3.20",
+    "maxminddb==3.3.0",
+    "multidict==7.2.1",
+    "playwright==1.65.2",
+    "propcache==0.5.4",
+    "pycparser==3.12",
+    "requests==2.34.2",
+    "socksio==1.0.0",
+    "urllib3==2.8.0",
+    "yarl==1.25.1",
+]
+inputs = "a63c24857dd6fa49199be7d7fb8e21346bfe7d9ead30b4fa58b85da1b3f82ffc"

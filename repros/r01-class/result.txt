@@ -1,0 +1,8 @@
+main.jac:3:5: error[W3055]: the body of 'double' belongs in an impl: a module reads as its declarations, by design; `neojac fmt --fix` moves the body to the module's impl annex [separate-impls]
+ 3 |     def double -> int { return self.x * 2; }
+   |     ^
+
+1 error
+`neojac docs W3055` explains an error by its code.
+exit=1
+4

@@ -1,0 +1,17 @@
+## absent vs null
+$ absent_or_null {}
+{"ok": true, "data": "a=None"}
+$ absent_or_null {"a":null}
+{"ok": false, "kind": "rejected", "detail": "absent_or_null: .a: expected a str, got None"}
+## enum
+$ gpu NVIDIA
+{"ok": true, "data": "Gpu.NVIDIA"}
+$ gpu nvidia (original lowercase value)
+{"ok": false, "kind": "rejected", "detail": "gpu: .g: expected a member's name, got 'nvidia'"}
+$ gpu bogus
+{"ok": false, "kind": "rejected", "detail": "gpu: .g: expected a member's name, got 'bogus'"} [http 400]
+## unknown arg
+{"ok": false, "kind": "rejected", "detail": "gpu_str: no parameter 'extra'"} [http 400]
+## order
+{"ok": true, "data": null}
+{"ok": true, "data": [0, 1, 2, 3, 4, 5]}
