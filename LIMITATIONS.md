@@ -179,7 +179,15 @@ and `/proc/meminfo`:
 - The equivalent Python backend and its test-suite run in 80 MB. The Rust/C++ toolchain neojac ships (Clang + LLD +
   runtime) is the cost; there is no documented option to reduce build memory (`neojac help build` has none;
   `neojac docs search memory|parallel` finds nothing about build memory/jobs).
-- Impact: iterate with `neojac check` / `neojac test` (<0.8 GB) and build only when nothing else is running.
+- What did work: pinning to **one CPU** (`taskset -c 0`) plus a watchdog (`tools/guarded.sh`, kills the process group at
+  `MemAvailable < 250 MB`) let `neojac test manager.jac` (a ~700-line module + 21 tests) finish with a system peak of
+  2.6–3.0 GB (`notes/test-manager-1cpu.log`, `notes/test-all.log`); the same command pinned to 4 CPUs was killed by the watchdog
+  (`notes/test-manager.log`). So neojac's compile fan-out is memory-bound on a small VM and there is no flag to cap it
+  (**guess:** it uses all online CPUs, here 16).
+- A plugin's unit tests (`token_auth`, which pulls `stdjac.server`) peaked at 3.2 GB system use (`notes/test-token-auth.log`).
+- Impact: iterate with `neojac check` / `neojac test`; the **final `neojac build manager` + `neojac browse` of the page was
+  not run** (user chose test-only after three VM crashes), so the browser space is type-checked (`neojac check --space site`)
+  but never rendered. This is the largest gap in the proof; see README "What is and is not proven".
 
 ---
 
@@ -195,3 +203,41 @@ and `/proc/meminfo`:
 - `E0109` for `@restspec` printed `/home/ravimal/.neojac/0.3.3/rt/stdjac/server.jac:346:5 ... comptime assert len(params(f))`.
   Harmless, but it points a user at compiler-runtime source the rules forbid reading; a user diagnostic could name the
   decorator's own line instead.
+
+### L-021 Test blocks share one graph (minor, expected)
+- `root` persists across `test` blocks of a module run, so a test that counts profiles sees the previous test's nodes
+  (5 of my first 21 tests failed for this reason). Isolation is manual (`fresh_data()` in `manager.test.jac` removes every node).
+
+### L-022 Endpoints cannot read the request (headers, caller, client address) — *docs-only*
+- `neojac docs apps/server` / `stdjac` show no way for an endpoint to see the caller or headers; only `root` is the caller's.
+  The original's `/api/auth/status` (`authenticated: bool`, computed from the request) therefore returns only `auth_required`;
+  a page learns whether it is signed in from `GET /__jac/auth/me` / `signed_in()`.
+- The session token is kept in the browser's `localStorage` (`jac_token`) per `neojac docs apps/pages`, not in the original's
+  `HttpOnly; SameSite=Strict` cookie, which the server cannot set (no response headers, L-009). A custom `Auth` plugin
+  can *read* an `auth_token` cookie (`token_auth` does, unit-tested) but nothing can *set* it.
+
+### L-023 `Auth` plugin: worked as documented (positive) — with one undocumented-in-skill cost
+- `token_auth` (custom `auth` plugin, ~60 lines) reproduces `AUTH_TOKEN` (Bearer + cookie, constant-time compare, open mode
+  when unset) and passes 3 unit tests. Cost: its package is its own project root, so the default lint applied and
+  `fmt --fix` deleted its module docstring and moved all bodies into `impl/` (L-019), and the `writing-a-plugin` skill
+  points at a worked example only inside neojac's repository (`tests/plugins/ticket_auth`), which the rules forbid reading,
+  so the plugin was written from `neojac docs stdjac.server` tables alone (it type-checked first time).
+
+### L-024 `neojac port` is the only entry point to "translate" — nothing for the data model
+- Pydantic models (`class X(BaseModel)` with annotated fields and validators, 160 of the refusals) have no mapping at all;
+  the Jac replacement (`obj` + manual `validate_fields`) had to be designed by hand, and `extra="forbid"`, `Literal[...]`,
+  `field_validator`, `model_dump(exclude_unset=True)` have no counterpart in neojac's decoder (L-011/L-012/L-013).
+
+## What of the original is NOT ported (and why)
+
+| Original feature | Status | Reason |
+|---|---|---|
+| Profile CRUD, reorder, reset, duplicate (+browser state), tags | **ported**, 21 Jac tests + 16 original-behaviour tests | |
+| Settings (masked key, channel), status, health, runtime config | **ported** | |
+| Files / artifacts (upload, list, download, delete, quotas, safe filenames) | **ported**, ≤ ~8 MiB per file | L-014 |
+| Optional `AUTH_TOKEN` auth | **ported** as a custom `auth` plugin | token in `localStorage`, not cookie (L-022) |
+| Launch / stop / status | **simulated** (state only, no browser) | no KasmVNC/Xvnc and 3.7 GB RAM here; real launch would need `cloakbrowser` + a VNC server; `cloakbrowser` itself imports from Jac (L-017) |
+| VNC WebSocket, CDP WebSocket and `/cdp/json/*` reverse proxy, clipboard relay, screenshot | **not ported** | L-015 |
+| `test-proxy`, update-check, open-external, shutdown | **not ported** | need outbound HTTP + request origin (L-022); low value |
+| Browser-download capture (`downloads.py`), file-chooser bookmarks (`artifacts.sync_picker_view`) | **not ported** | belong to the live browser container |
+| React UI (15 components, drag-and-drop, noVNC viewer) | **partial**: login gate, profile list, create/edit form, settings, files list/delete, launch/stop in Jac JSX; *type-checked, never rendered*; no drag-reorder, no file upload/download UI, no noVNC | L-003, memory (L-018) |

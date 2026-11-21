@@ -5,7 +5,9 @@ import json;
 def:pub ProfileForm(initial: ProfileOut | None, on_save: any, on_cancel: any) -> JsxElement {
     has name: str = initial.name if initial is not None else "";
     has proxy: str = initial.proxy if initial is not None and initial.proxy is not None else "";
-    has timezone: str = initial.timezone if initial is not None and initial.timezone is not None else "";
+    has timezone: str = initial.timezone
+        if initial is not None and initial.timezone is not None
+        else "";
     has locale: str = initial.locale if initial is not None and initial.locale is not None else "";
     has gpu: str = initial.gpu_family if initial is not None else "auto";
     has engine: str = initial.search_engine if initial is not None else "google";
@@ -26,7 +28,7 @@ def:pub ProfileForm(initial: ProfileOut | None, on_save: any, on_cancel: any) ->
             "humanize": humanize,
             "auto_launch": auto_launch,
             "notes": notes if notes.strip() != "" else None,
-            "tags": [{"tag": t.strip()} for t in tags_text.split(",") if t.strip() != ""]
+            "tags": [{"tag": t.strip()} for t in tags_text.split(",") if t.strip() != ""],
         };
         on_save(json.dumps(fields));
     }
@@ -54,8 +56,16 @@ def:pub ProfileForm(initial: ProfileOut | None, on_save: any, on_cancel: any) ->
             <option value="duckduckgo">duckduckgo</option>
             <option value="none">none</option>
         </select>
-        <label><input type="checkbox" checked={humanize} onChange={lambda (e: any) { humanize = e.target.checked; }} /> Humanize input</label>
-        <label><input type="checkbox" checked={auto_launch} onChange={lambda (e: any) { auto_launch = e.target.checked; }} /> Launch at startup</label>
+        <label><input
+            type="checkbox"
+            checked={humanize}
+            onChange={lambda (e: any) { humanize = e.target.checked; }}
+        /> Humanize input</label>
+        <label><input
+            type="checkbox"
+            checked={auto_launch}
+            onChange={lambda (e: any) { auto_launch = e.target.checked; }}
+        /> Launch at startup</label>
         <label>Tags (comma separated)</label>
         <input value={tags_text} onInput={lambda (e: any) { tags_text = e.target.value; }} />
         <label>Notes</label>

@@ -130,41 +130,82 @@ def:pub page -> JsxPage {
     }
 
     return <div className="app">
-        <ProfileList profiles={profiles} selected={selected} on_select={select} on_new={lambda { mode = "new"; }} />
+        <ProfileList
+            profiles={profiles}
+            selected={selected}
+            on_select={select}
+            on_new={lambda { mode = "new"; }}
+        />
         <main className="main">
             <div className="bar">
                 <span className="dim">{summary}</span>
                 <button onClick={load_settings}>Settings</button>
             </div>
             <p className="err">{error}</p>
-            {<ProfileForm key="new" initial={None} on_save={save} on_cancel={lambda { mode = "view"; }} /> if mode == "new" else <span></span>}
+            {<ProfileForm
+                key="new"
+                initial={None}
+                on_save={save}
+                on_cancel={lambda { mode = "view"; }}
+            />
+                if mode == "new"
+                else <span></span>}
             {<section className="panel">
                 <h2>License</h2>
-                <p className="dim">Current key: {license_masked if license_masked != "" else "none"}</p>
+                <p className="dim">Current key: {license_masked
+                    if license_masked != ""
+                    else "none"}</p>
                 <label>License key</label>
-                <input value={key_draft} onInput={lambda (e: any) { key_draft = e.target.value; }} />
+                <input
+                    value={key_draft}
+                    onInput={lambda (e: any) { key_draft = e.target.value; }}
+                />
                 <label>Release channel</label>
                 <select value={channel} onChange={lambda (e: any) { channel = e.target.value; }}>
                     <option value="stable">stable</option>
                     <option value="preview">preview</option>
                 </select>
-                <div className="bar"><button className="primary" onClick={save_settings}>Save</button></div>
-            </section> if mode == "settings" else <span></span>}
+                <div className="bar">
+                    <button className="primary" onClick={save_settings}>Save</button>
+                </div>
+            </section>
+                if mode == "settings"
+                else <span></span>}
             {[
                 <section key={p.id} className="panel">
                     <h2>{p.name} <span className="dim">{p.status}</span></h2>
-                    <p className="dim">seed {p.fingerprint_seed} · {p.screen_width}x{p.screen_height} · gpu {p.gpu_family} · {p.proxy if p.proxy is not None else "no proxy"}</p>
+                    <p
+                        className="dim"
+                    >seed {p.fingerprint_seed} · {p.screen_width}x{p.screen_height} · gpu {p.gpu_family} · {p.proxy
+                        if p.proxy is not None
+                        else "no proxy"}</p>
                     <div className="bar">
-                        {<button className="primary" onClick={launch}>Launch</button> if p.status != "running" else <button onClick={stop}>Stop</button>}
+                        {<button className="primary" onClick={launch}>Launch</button>
+                            if p.status != "running"
+                            else <button onClick={stop}>Stop</button>}
                         <button onClick={lambda { mode = "edit"; }}>Edit</button>
                         <button onClick={duplicate}>Duplicate</button>
                         <button onClick={reset}>Reset</button>
                         <button className="danger" onClick={remove_selected}>Delete</button>
                     </div>
-                    {<ProfileForm key={p.id} initial={p} on_save={save} on_cancel={lambda { mode = "view"; }} /> if mode == "edit" else <span></span>}
+                    {<ProfileForm
+                        key={p.id}
+                        initial={p}
+                        on_save={save}
+                        on_cancel={lambda { mode = "view"; }}
+                    />
+                        if mode == "edit"
+                        else <span></span>}
                     <h3>Files</h3>
                     <ul>
-                        {[<li key={f.id}>{f.name} <span className="dim">({f.size} bytes)</span> <button onClick={lambda { drop_file(f.id) }}>Remove</button></li> for f in files]}
+                        {[
+                            <li key={f.id}>{f.name} <span
+                                className="dim"
+                            >({f.size} bytes)</span> <button
+                                onClick={lambda { drop_file(f.id) }}
+                            >Remove</button></li>
+                            for f in files
+                        ]}
                     </ul>
                 </section>
                 for p in current

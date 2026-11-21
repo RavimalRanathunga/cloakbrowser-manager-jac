@@ -33,8 +33,15 @@ test "create applies the original defaults" {
     assert p.name == "Test Profile";
     assert p.screen_width == 1920 and p.screen_height == 1080;
     assert p.gpu_family == "auto" and p.search_engine == "google" and p.human_preset == "default";
-    assert p.geoip and p.clipboard_sync and p.allow_3p_cookies and p.capture_preview and p.restore_session;
-    assert not p.humanize and not p.auto_launch and not p.transparent_proxy and not p.portable_cookies;
+    assert p.geoip
+        and p.clipboard_sync
+        and p.allow_3p_cookies
+        and p.capture_preview
+        and p.restore_session;
+    assert not p.humanize
+        and not p.auto_launch
+        and not p.transparent_proxy
+        and not p.portable_cookies;
     assert p.status == "stopped" and p.cdp_url is None and p.launch_args == [];
     assert 10000 <= p.fingerprint_seed <= 99999;
     assert p.user_data_dir.endswith("/profiles/" + p.id);
@@ -42,14 +49,22 @@ test "create applies the original defaults" {
 
 test "create with all fields round-trips" {
     fresh_data();
-    p = mk("Full", ', "proxy": "http://u:p@h:8080", "timezone": "Europe/Paris", "locale": "fr-FR", "screen_width": 1366, "screen_height": 768, "gpu_family": "nvidia", "humanize": true, "human_preset": "careful", "geoip": false, "clipboard_sync": false, "auto_launch": true, "color_scheme": "dark", "launch_args": ["--a", "--b"], "extension_paths": ["/x"], "allow_3p_cookies": false, "search_engine": "duckduckgo", "capture_preview": false, "restore_session": false, "transparent_proxy": true, "portable_cookies": true, "notes": "n", "tags": [{"tag": "t1", "color": "#fff"}, {"tag": "t2"}]');
+    p = mk(
+        "Full",
+        ', "proxy": "http://u:p@h:8080", "timezone": "Europe/Paris", "locale": "fr-FR", "screen_width": 1366, "screen_height": 768, "gpu_family": "nvidia", "humanize": true, "human_preset": "careful", "geoip": false, "clipboard_sync": false, "auto_launch": true, "color_scheme": "dark", "launch_args": ["--a", "--b"], "extension_paths": ["/x"], "allow_3p_cookies": false, "search_engine": "duckduckgo", "capture_preview": false, "restore_session": false, "transparent_proxy": true, "portable_cookies": true, "notes": "n", "tags": [{"tag": "t1", "color": "#fff"}, {"tag": "t2"}]',
+    );
     assert p.proxy == "http://u:p@h:8080" and p.timezone == "Europe/Paris" and p.locale == "fr-FR";
     assert p.screen_width == 1366 and p.gpu_family == "nvidia" and p.human_preset == "careful";
     assert p.humanize and p.auto_launch and p.transparent_proxy and p.portable_cookies;
     assert not p.geoip and not p.clipboard_sync and not p.allow_3p_cookies;
-    assert p.color_scheme == "dark" and p.launch_args == ["--a", "--b"] and p.extension_paths == ["/x"];
+    assert p.color_scheme == "dark"
+        and p.launch_args == ["--a", "--b"]
+        and p.extension_paths == ["/x"];
     assert p.search_engine == "duckduckgo" and p.notes == "n";
-    assert len(p.tags) == 2 and p.tags[0].tag == "t1" and p.tags[0].color == "#fff" and p.tags[1].color is None;
+    assert len(p.tags) == 2
+        and p.tags[0].tag == "t1"
+        and p.tags[0].color == "#fff"
+        and p.tags[1].color is None;
 }
 
 test "invalid values and unknown fields are rejected with 422" {
@@ -161,7 +176,9 @@ test "reset re-rolls the seed and wipes state but keeps preferences" {
     assert r.status == "stopped" and r.proxy == "http://h:1" and len(r.tags) == 1;
     assert not os.path.exists(d + "/Cookies") and not os.path.exists(d + "/History");
     assert not os.path.exists(d + "/Cache") and not os.path.exists(d + "/Local Storage");
-    assert os.path.exists(d + "/Bookmarks") and os.path.exists(d + "/Preferences") and os.path.exists(d + "/Web Data");
+    assert os.path.exists(d + "/Bookmarks")
+        and os.path.exists(d + "/Preferences")
+        and os.path.exists(d + "/Web Data");
     assert reset_profile("nope").status == 404;
 }
 
@@ -214,7 +231,9 @@ test "settings: masked key, channel, clear, bad channel" {
     st = put_settings('{"license_key": "cb_abcdefghijklmnop", "release_channel": "Preview"}');
     assert st.status == 200;
     s2 = get_settings();
-    assert s2.license_key_set and s2.license_key_masked == "cb_ab…mnop" and s2.release_channel == "preview";
+    assert s2.license_key_set
+        and s2.license_key_masked == "cb_ab…mnop"
+        and s2.release_channel == "preview";
     assert put_settings('{"release_channel": "nightly"}').status == 400;
     assert put_settings('{"license_key": ""}').status == 200;
     assert not get_settings().license_key_set;
@@ -226,7 +245,10 @@ test "status counts profiles" {
     mk("A");
     mk("B");
     s = system_status();
-    assert s.profiles_total == 2 and s.running_count == 0 and s.host_os == "linux" and s.runtime_mode == "docker";
+    assert s.profiles_total == 2
+        and s.running_count == 0
+        and s.host_os == "linux"
+        and s.runtime_mode == "docker";
 }
 
 test "runtime config sidebar width" {
@@ -247,7 +269,8 @@ test "files: upload, list, download, delete" {
     assert u.artifact is not None;
     a = u.artifact;
     assert a.name == "inv oice.pdf" and a.size == 5 and a.kind == "upload" and a.state == "ready";
-    assert a.content_type == "application/pdf" and a.container_path.endswith("/" + a.id + "/inv oice.pdf");
+    assert a.content_type == "application/pdf"
+        and a.container_path.endswith("/" + a.id + "/inv oice.pdf");
     assert [x.id for x in list_files(p.id).artifacts] == [a.id];
     d = download_file(p.id, a.id);
     assert d.status == 200 and d.data == b"hello" and d.name == "inv oice.pdf";
