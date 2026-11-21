@@ -1,0 +1,22 @@
+:root { color-scheme: dark; --bg: #0f1115; --panel: #171a21; --line: #272c36; --text: #e6e8ee; --dim: #8b93a5; --accent: #5b8cff; --bad: #ff6b6b; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, sans-serif; }
+.app { display: grid; grid-template-columns: 18rem 1fr; min-height: 100vh; }
+.sidebar { background: var(--panel); border-right: 1px solid var(--line); padding: 12px; }
+.sidebar h1 { font-size: 15px; margin: 0 0 12px; }
+.row { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 8px; border-radius: 6px; cursor: pointer; }
+.row:hover, .row.sel { background: #202531; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); display: inline-block; margin-right: 6px; }
+.dot.on { background: #3ddc84; }
+.tag { font-size: 11px; padding: 1px 6px; border-radius: 8px; background: #263049; color: #a9bff5; margin-left: 4px; }
+.main { padding: 20px; }
+button { background: #232938; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { color: var(--bad); }
+label { display: block; margin: 10px 0 4px; color: var(--dim); font-size: 12px; }
+input, select, textarea { width: 100%; background: #12151b; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+input[type=checkbox] { width: auto; }
+.err { color: var(--bad); margin: 8px 0; }
+.bar { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-top: 14px; max-width: 46rem; }
+.dim { color: var(--dim); }
