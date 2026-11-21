@@ -41,26 +41,61 @@ glob FIELD_KINDS: dict[str, str] = {
     "transparent_proxy": "bool",
     "portable_cookies": "bool",
     "notes": "str?",
-    "tags": "tags"
+    "tags": "tags",
 };
 
 glob RESET_FILES: list[str] = [
-    "Cookies", "Cookies-journal", "History", "History-journal", "History Provider Cache",
-    "Login Data", "Login Data-journal", "Favicons", "Favicons-journal", "Shortcuts",
-    "Shortcuts-journal", "Top Sites", "Top Sites-journal", "Visited Links",
-    "Network Action Predictor", "Network Action Predictor-journal", "TransportSecurity",
-    "Current Session", "Current Tabs", "Last Session", "Last Tabs", "affiliation_db",
-    "coupon_db", "DownloadMetadata"
+    "Cookies",
+    "Cookies-journal",
+    "History",
+    "History-journal",
+    "History Provider Cache",
+    "Login Data",
+    "Login Data-journal",
+    "Favicons",
+    "Favicons-journal",
+    "Shortcuts",
+    "Shortcuts-journal",
+    "Top Sites",
+    "Top Sites-journal",
+    "Visited Links",
+    "Network Action Predictor",
+    "Network Action Predictor-journal",
+    "TransportSecurity",
+    "Current Session",
+    "Current Tabs",
+    "Last Session",
+    "Last Tabs",
+    "affiliation_db",
+    "coupon_db",
+    "DownloadMetadata",
 ];
 
 glob RESET_DIRS: list[str] = [
-    "Cache", "Code Cache", "GPUCache", "Service Worker", "Service Worker/CacheStorage",
-    "Local Storage", "Session Storage", "IndexedDB", "databases", "blob_storage",
-    "File System", "GCM Store", "Extension Rules", "Extension Scripts", "Extension State",
-    "Platform Notifications"
+    "Cache",
+    "Code Cache",
+    "GPUCache",
+    "Service Worker",
+    "Service Worker/CacheStorage",
+    "Local Storage",
+    "Session Storage",
+    "IndexedDB",
+    "databases",
+    "blob_storage",
+    "File System",
+    "GCM Store",
+    "Extension Rules",
+    "Extension Scripts",
+    "Extension State",
+    "Platform Notifications",
 ];
 
-glob DUPLICATE_SKIP: set[str] = {"SingletonLock", "SingletonCookie", "SingletonSocket", "preview.png"};
+glob DUPLICATE_SKIP: set[str] = {
+    "SingletonLock",
+    "SingletonCookie",
+    "SingletonSocket",
+    "preview.png",
+};
 
 edge HasTag: Profile --> Tag {}
 
@@ -155,17 +190,37 @@ def to_out(p: Profile) -> ProfileOut {
         cdp = "/api/profiles/" + pid + "/cdp";
     }
     return ProfileOut(
-        id=pid, name=p.name, fingerprint_seed=p.fingerprint_seed, proxy=p.proxy,
-        timezone=p.timezone, locale=p.locale, screen_width=p.screen_width,
-        screen_height=p.screen_height, gpu_family=p.gpu_family, humanize=p.humanize,
-        human_preset=p.human_preset, geoip=p.geoip, clipboard_sync=p.clipboard_sync,
-        auto_launch=p.auto_launch, color_scheme=p.color_scheme, launch_args=p.launch_args,
-        extension_paths=p.extension_paths, allow_3p_cookies=p.allow_3p_cookies,
-        search_engine=p.search_engine, capture_preview=p.capture_preview,
-        restore_session=p.restore_session, transparent_proxy=p.transparent_proxy,
-        portable_cookies=p.portable_cookies, notes=p.notes, user_data_dir=p.user_data_dir,
-        created_at=p.created_at, updated_at=p.updated_at, sort_order=p.sort_order,
-        tags=tags, status="running" if is_running else "stopped", cdp_url=cdp
+        id=pid,
+        name=p.name,
+        fingerprint_seed=p.fingerprint_seed,
+        proxy=p.proxy,
+        timezone=p.timezone,
+        locale=p.locale,
+        screen_width=p.screen_width,
+        screen_height=p.screen_height,
+        gpu_family=p.gpu_family,
+        humanize=p.humanize,
+        human_preset=p.human_preset,
+        geoip=p.geoip,
+        clipboard_sync=p.clipboard_sync,
+        auto_launch=p.auto_launch,
+        color_scheme=p.color_scheme,
+        launch_args=p.launch_args,
+        extension_paths=p.extension_paths,
+        allow_3p_cookies=p.allow_3p_cookies,
+        search_engine=p.search_engine,
+        capture_preview=p.capture_preview,
+        restore_session=p.restore_session,
+        transparent_proxy=p.transparent_proxy,
+        portable_cookies=p.portable_cookies,
+        notes=p.notes,
+        user_data_dir=p.user_data_dir,
+        created_at=p.created_at,
+        updated_at=p.updated_at,
+        sort_order=p.sort_order,
+        tags=tags,
+        status="running" if is_running else "stopped",
+        cdp_url=cdp,
     );
 }
 
@@ -338,7 +393,13 @@ def:pub create_profile(fields_json: str) -> ProfileReply {
             order = min([q.sort_order for q in ps]) - 1;
         }
         stamp = now();
-        p = Profile(name=data["name"], fingerprint_seed=new_seed(), created_at=stamp, updated_at=stamp, sort_order=order);
+        p = Profile(
+            name=data["name"],
+            fingerprint_seed=new_seed(),
+            created_at=stamp,
+            updated_at=stamp,
+            sort_order=order,
+        );
         p.user_data_dir = user_data_dir_for(jid(p));
         apply_fields(p, data);
         root.shared ++> p;
@@ -443,30 +504,52 @@ def:pub duplicate_profile(profile_id: str, options_json: str = "") -> ProfileRep
         include_state = value;
     }
     if include_state and profile_id in running {
-        return ProfileReply(status=409, detail="Stop the profile before duplicating its browser state");
+        return ProfileReply(
+            status=409, detail="Stop the profile before duplicating its browser state"
+        );
     }
     with lock {
         ps = all_profiles();
         stamp = now();
         clone = Profile(
-            name=src.name + " (copy)", fingerprint_seed=src.fingerprint_seed,
-            proxy=src.proxy, timezone=src.timezone, locale=src.locale,
-            screen_width=src.screen_width, screen_height=src.screen_height,
-            gpu_family=src.gpu_family, humanize=src.humanize, human_preset=src.human_preset,
-            geoip=src.geoip, clipboard_sync=src.clipboard_sync, auto_launch=src.auto_launch,
-            color_scheme=src.color_scheme, launch_args=list(src.launch_args),
-            extension_paths=list(src.extension_paths), allow_3p_cookies=src.allow_3p_cookies,
-            search_engine=src.search_engine, capture_preview=src.capture_preview,
-            restore_session=src.restore_session, transparent_proxy=src.transparent_proxy,
-            portable_cookies=src.portable_cookies, notes=src.notes,
-            created_at=stamp, updated_at=stamp, sort_order=min([q.sort_order for q in ps]) - 1
+            name=src.name + " (copy)",
+            fingerprint_seed=src.fingerprint_seed,
+            proxy=src.proxy,
+            timezone=src.timezone,
+            locale=src.locale,
+            screen_width=src.screen_width,
+            screen_height=src.screen_height,
+            gpu_family=src.gpu_family,
+            humanize=src.humanize,
+            human_preset=src.human_preset,
+            geoip=src.geoip,
+            clipboard_sync=src.clipboard_sync,
+            auto_launch=src.auto_launch,
+            color_scheme=src.color_scheme,
+            launch_args=list(src.launch_args),
+            extension_paths=list(src.extension_paths),
+            allow_3p_cookies=src.allow_3p_cookies,
+            search_engine=src.search_engine,
+            capture_preview=src.capture_preview,
+            restore_session=src.restore_session,
+            transparent_proxy=src.transparent_proxy,
+            portable_cookies=src.portable_cookies,
+            notes=src.notes,
+            created_at=stamp,
+            updated_at=stamp,
+            sort_order=min([q.sort_order for q in ps]) - 1,
         );
         clone.user_data_dir = user_data_dir_for(jid(clone));
         if include_state and os.path.isdir(src.user_data_dir) {
             try {
                 shutil.copytree(
-                    src.user_data_dir, clone.user_data_dir, symlinks=True, dirs_exist_ok=True,
-                    ignore=lambda (d: str, names: list[str]) -> set[str] { {n for n in names if n in DUPLICATE_SKIP} }
+                    src.user_data_dir,
+                    clone.user_data_dir,
+                    symlinks=True,
+                    dirs_exist_ok=True,
+                    ignore=lambda (d: str, names: list[str]) -> set[str] {
+                        {n for n in names if n in DUPLICATE_SKIP}
+                    },
                 );
             } except OSError as e {
                 shutil.rmtree(clone.user_data_dir, ignore_errors=True);
@@ -507,7 +590,9 @@ def:pub profile_status(profile_id: str) -> LaunchReply {
         return LaunchReply(status=404, detail="Profile not found");
     }
     if profile_id in running {
-        return LaunchReply(profile_id=profile_id, state="running", cdp_url="/api/profiles/" + profile_id + "/cdp");
+        return LaunchReply(
+            profile_id=profile_id, state="running", cdp_url="/api/profiles/" + profile_id + "/cdp"
+        );
     }
     return LaunchReply(profile_id=profile_id, state="stopped");
 }
@@ -544,7 +629,9 @@ def:pub get_settings -> SettingsOut {
     if live_channel != "" {
         channel = live_channel;
     }
-    return SettingsOut(license_key_set=live_key != "", license_key_masked=mask_key(key), release_channel=channel);
+    return SettingsOut(
+        license_key_set=live_key != "", license_key_masked=mask_key(key), release_channel=channel
+    );
 }
 
 def:pub put_settings(patch_json: str) -> StatusOut {
@@ -598,9 +685,16 @@ def artifact_path(profile_id: str, artifact_id: str, name: str) -> str {
 def to_artifact_out(profile_id: str, a: Artifact) -> ArtifactOut {
     aid = jid(a);
     return ArtifactOut(
-        id=aid, profile_id=profile_id, name=a.name, size=a.size, kind=a.kind, state=a.state,
-        content_type=a.content_type, created_at=a.created_at, picker_name=a.picker_name,
-        container_path=artifact_path(profile_id, aid, a.name)
+        id=aid,
+        profile_id=profile_id,
+        name=a.name,
+        size=a.size,
+        kind=a.kind,
+        state=a.state,
+        content_type=a.content_type,
+        created_at=a.created_at,
+        picker_name=a.picker_name,
+        container_path=artifact_path(profile_id, aid, a.name),
     );
 }
 
@@ -620,11 +714,19 @@ def find_artifact(p: Profile, artifact_id: str) -> Artifact | None {
 def check_quota(p: Profile, incoming: int) -> str {
     files = [p ->:HasFile:->];
     if len(files) >= max_artifact_count {
-        return "profile already holds " + str(len(files)) + " artifacts (max " + str(max_artifact_count) + ")";
+        return "profile already holds "
+            + str(len(files))
+            + " artifacts (max "
+            + str(max_artifact_count)
+            + ")";
     }
     used = sum([a.size for a in files if a.state == "ready"]);
     if used + incoming > max_profile_bytes {
-        return "profile artifact storage would reach " + str(used + incoming) + " bytes (max " + str(max_profile_bytes) + ")";
+        return "profile artifact storage would reach "
+            + str(used + incoming)
+            + " bytes (max "
+            + str(max_profile_bytes)
+            + ")";
     }
     return "";
 }
@@ -634,17 +736,25 @@ def:pub list_files(profile_id: str) -> ArtifactsReply {
     if p is None {
         return ArtifactsReply(status=404, detail="Profile not found");
     }
-    files = sorted([a for a in [p ->:HasFile:->]], key=lambda (a: Artifact) -> str { a.created_at }, reverse=True);
+    files = sorted(
+        [a for a in [p ->:HasFile:->]],
+        key=lambda (a: Artifact) -> str { a.created_at },
+        reverse=True,
+    );
     return ArtifactsReply(artifacts=[to_artifact_out(profile_id, a) for a in files]);
 }
 
-def:pub upload_file(profile_id: str, name: str, data: bytes, content_type: str = "") -> ArtifactReply {
+def:pub upload_file(
+    profile_id: str, name: str, data: bytes, content_type: str = ""
+) -> ArtifactReply {
     p = find_profile(profile_id);
     if p is None {
         return ArtifactReply(status=404, detail="Profile not found");
     }
     if len(data) > max_artifact_bytes {
-        return ArtifactReply(status=413, detail="upload exceeds " + str(max_artifact_bytes) + " bytes");
+        return ArtifactReply(
+            status=413, detail="upload exceeds " + str(max_artifact_bytes) + " bytes"
+        );
     }
     with lock {
         err = check_quota(p, len(data));
@@ -697,7 +807,9 @@ def:pub delete_file(profile_id: str, artifact_id: str) -> OkReply {
         return OkReply(status=404, detail="Artifact not found");
     }
     if a.state == "pending" and profile_id in running {
-        return OkReply(status=409, detail="Download is still in progress; it cannot be removed yet");
+        return OkReply(
+            status=409, detail="Download is still in progress; it cannot be removed yet"
+        );
     }
     remove(a);
     shutil.rmtree(os.path.join(artifact_dir(profile_id), artifact_id), ignore_errors=True);

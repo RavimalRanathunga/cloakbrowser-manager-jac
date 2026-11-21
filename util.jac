@@ -4,14 +4,38 @@ import re;
 import unicodedata;
 import os;
 
-glob MAX_NAME_BYTES: int = 255;
-glob DEFAULT_SIDEBAR_WIDTH: str = "16rem";
-glob WINDOWS_RESERVED: set[str] = {
-    "CON", "PRN", "AUX", "NUL",
-    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
-    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
-    "COM¹", "COM²", "COM³", "LPT¹", "LPT²", "LPT³"
-};
+glob MAX_NAME_BYTES: int = 255,
+     DEFAULT_SIDEBAR_WIDTH: str = "16rem",
+     WINDOWS_RESERVED: set[str] = {
+         "CON",
+         "PRN",
+         "AUX",
+         "NUL",
+         "COM1",
+         "COM2",
+         "COM3",
+         "COM4",
+         "COM5",
+         "COM6",
+         "COM7",
+         "COM8",
+         "COM9",
+         "LPT1",
+         "LPT2",
+         "LPT3",
+         "LPT4",
+         "LPT5",
+         "LPT6",
+         "LPT7",
+         "LPT8",
+         "LPT9",
+         "COM¹",
+         "COM²",
+         "COM³",
+         "LPT¹",
+         "LPT²",
+         "LPT³",
+     };
 
 """Trim stem + suffix to `budget` bytes, keeping as much suffix as possible."""
 def fit_bytes(stem: str, suffix: str, budget: int) -> str {

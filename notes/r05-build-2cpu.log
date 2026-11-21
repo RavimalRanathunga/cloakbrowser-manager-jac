@@ -1,0 +1,2 @@
+WATCHDOG: MemAvailable=459MB, killing group 1806
+EXIT=137 PEAK_SYSTEM_USED_MB=3306 (baseline before: see free)
