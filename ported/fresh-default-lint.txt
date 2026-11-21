@@ -1,0 +1,13 @@
+$ neojac port src/pure.py -o pure.jac   (jac.toml has NO [check.lint])
+src/pure.py -> pure.jac
+port exit=0
+$ neojac check pure.jac
+pure.jac:1:1: error[W3051]: a docstring: documentation lives in the project's README or docs, not in the source, by design; `neojac fmt --fix` removes it [strip-docstrings]
+pure.jac:3:1: error[W3055]: the body of 'mask_key' belongs in an impl: a module reads as its declarations, by design; `neojac fmt --fix` moves the body to the module's impl annex [separate-impls]
+pure.jac:13:1: error[W3055]: the body of 'parse_version' belongs in an impl: a module reads as its declarations, by design; `neojac fmt --fix` moves the body to the module's impl annex [separate-impls]
+pure.jac:28:1: error[W3055]: the body of 'version_gt' belongs in an impl: a module reads as its declarations, by design; `neojac fmt --fix` moves the body to the module's impl annex [separate-impls]
+pure.jac:44:1: error[W3055]: the body of 'netloc_of' belongs in an impl: a module reads as its declarations, by design; `neojac fmt --fix` moves the body to the module's impl annex [separate-impls]
+5 errors
+`neojac docs W3051` explains an error by its code.
+$ neojac fmt --check pure.jac
+fmt exit=0

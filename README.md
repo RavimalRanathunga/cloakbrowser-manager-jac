@@ -32,9 +32,28 @@ ORIGINAL_REPO=../CloakBrowser-Manager python3 -I -m pytest parity -q   # the sce
 ```
 
 ## What is and is not proven
-- **Proven:** 28 Jac tests pass. Their expectations (statuses, defaults, validation, ordering incl. the reorder tie-break,
-  patch semantics, tag replacement, reset/duplicate file effects, settings masking, artifact paths/quotas) are the same scenarios
-  that pass against the original (`parity/`, 16 passed, on top of the original's own 240-test baseline).
-- **Not proven:** the built app has not been run (the native build exceeds this VM's memory budget, L-018), so the HTTP surface
-  (`/__jac/call/...`), `sign_in()` and the rendered page are unverified here. Launch/stop are simulated.
+- **Proven (server logic):** 28 Jac tests pass (`manager.jac` 21, `util.jac` 4, `token_auth` 3). 16 scenario tests in `parity/` pass
+  against the ORIGINAL Python app (on top of the original's own 240-test suite, run green first); the Jac tests encode the same
+  expectations (statuses, defaults, 422 rejections, ordering incl. the reorder tie-break, patch/`null` semantics, tag replacement,
+  `updated_at` not bumped by a tags-only update, reset/duplicate file effects, settings masking, artifact paths).
+  *The parity is by hand-written mirrored scenarios, not a differential run of both servers against each other.*
+- **Jac tests with no counterpart in the original scenarios:** launch/stop lifecycle and delete-while-running (launch is simulated),
+  duplicate-of-a-running-source → 409, artifact count/size quotas, the plugin's 3 tests, `util` tests.
+- **Proven (toolchain path), earlier vertical slice:** a 3-file api+site app (same archwire shape, `[npm.web]` pinned to vite 7)
+  built, served `POST /__jac/call/api/profiles/...`, kept its graph across a restart and rendered the list in `neojac browse`.
+  That slice was replaced by the real app *before the first commit*, so its files and outputs are **not preserved in this repo**:
+  treat it as an observation from the session, not a reproducible artifact.
+- **Not proven:** the *built* real app was never run (native build exceeds this VM's memory, L-018): `/__jac/call/...` of the
+  final server, `sign_in()` with `token_auth`, and the rendered page are unverified; the browser space is only type-checked.
+  Launch/stop are simulated (state only).
 - HTTP contract differs from the original by necessity (L-009/L-010): RPC endpoints, status carried in reply bodies.
+- To run the server: `CLOAKBROWSER_MANAGER_DATA_DIR=/some/writable/dir` must be set (the original's Linux default `/data` is kept).
+
+## To finish the proof (needs memory — please close VS Code, then say "go")
+```sh
+taskset -c 0 tools/guarded.sh notes/build.log 0 "neojac build manager"       # watchdog kills at <250 MB free
+CLOAKBROWSER_MANAGER_DATA_DIR=/tmp/cbm AUTH_TOKEN=s3cret JAC_MANAGER_LISTEN=127.0.0.1:8311 dist/manager-linux-x86_64/manager &
+curl -s -X POST :8311/__jac/call/api/manager/list_profiles -d '{}'      # expect 401 (no token)
+curl -s -X POST :8311/__jac/auth/login -d '{"token":"s3cret"}'           # then Bearer calls: create, list, update {"proxy": null}
+neojac browse open 127.0.0.1:8311/ ; neojac browse snapshot              # the page
+```

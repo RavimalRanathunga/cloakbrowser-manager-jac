@@ -128,7 +128,9 @@ def test_update_replaces_tags(c):
     p = mk(c, "A", tags=[{"tag": "a"}, {"tag": "b"}])
     u = c.put(f"/api/profiles/{p['id']}", json={"tags": [{"tag": "c", "color": "red"}]}).json()
     assert u["tags"] == [{"tag": "c", "color": "red"}]
-    assert c.put(f"/api/profiles/{p['id']}", json={"tags": []}).json()["tags"] == []
+    u2 = c.put(f"/api/profiles/{p['id']}", json={"tags": []}).json()
+    assert u2["tags"] == []
+    assert u2["updated_at"] == p["updated_at"]  # a tags-only update does not bump updated_at
 
 
 def test_delete(c):

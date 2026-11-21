@@ -1,0 +1,9 @@
+$ neojac install
+neojac install: 26 PyPI distributions in .jac/venv
+exit=0
+$ neojac install --frozen
+neojac install: 26 PyPI distributions in .jac/venv
+exit=0
+
+[dependencies.pypi]
+cloakbrowser = "[geoip]"

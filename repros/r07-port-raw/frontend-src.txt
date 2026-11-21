@@ -1,0 +1,152 @@
+$ neojac port --check ../CloakBrowser-Manager/frontend/src
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.test.ts:1:65: error[tsc TS2307]: Cannot find module 'vitest' or its corresponding type declarations.
+ 1 | import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+   |                                                                 ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.test.ts:2:42: error[tsc TS2307]: Cannot find module '@testing-library/react' or its corresponding type declarations.
+ 2 | import { renderHook, act, waitFor } from "@testing-library/react";
+   |                                          ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.test.ts:3:29: error[tsc TS2835]: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './useProfiles.js'?
+ 3 | import { useProfiles } from "./useProfiles";
+   |                             ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.test.ts:19:21: error[tsc TS2835]: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../lib/api.js'?
+ 19 | import { api } from "../lib/api";
+    |                     ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.test.ts:135:41: error[tsc TS7006]: Parameter 'p' implicitly has an 'any' type.
+ 135 |     expect(result.current.profiles.map((p) => p.id)).toEqual(["abc-123", "xyz-789"]);
+     |                                         ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.test.ts:141:41: error[tsc TS7006]: Parameter 'p' implicitly has an 'any' type.
+ 141 |     expect(result.current.profiles.map((p) => p.id)).toEqual(["xyz-789", "abc-123"]);
+     |                                         ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.test.ts:161:41: error[tsc TS7006]: Parameter 'p' implicitly has an 'any' type.
+ 161 |     expect(result.current.profiles.map((p) => p.id)).toEqual(["abc-123", "xyz-789"]);
+     |                                         ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.test.ts:178:41: error[tsc TS7006]: Parameter 'p' implicitly has an 'any' type.
+ 178 |     expect(result.current.profiles.map((p) => p.id)).toEqual(["clone-1", "abc-123"]);
+     |                                         ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:1:50: error[tsc TS2307]: Cannot find module 'react' or its corresponding type declarations.
+ 1 | import { useCallback, useEffect, useState } from "react";
+   |                                                  ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:2:59: error[tsc TS2835]: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean '../lib/api.js'?
+ 2 | import { api, type Profile, type ProfileCreateData } from "../lib/api";
+   |                                                           ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:24:22: error[tsc TS2552]: Cannot find name 'setInterval'. Did you mean 'interval'?
+ 24 |     const interval = setInterval(refresh, 3000);
+    |                      ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:25:18: error[tsc TS2304]: Cannot find name 'clearInterval'.
+ 25 |     return () => clearInterval(interval);
+    |                  ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:32:22: error[tsc TS7006]: Parameter 'prev' implicitly has an 'any' type.
+ 32 |         setProfiles((prev) => [profile, ...prev]);
+    |                      ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:45:22: error[tsc TS7006]: Parameter 'prev' implicitly has an 'any' type.
+ 45 |         setProfiles((prev) => prev.map((p) => (p.id === id ? profile : p)));
+    |                      ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:45:41: error[tsc TS7006]: Parameter 'p' implicitly has an 'any' type.
+ 45 |         setProfiles((prev) => prev.map((p) => (p.id === id ? profile : p)));
+    |                                         ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:58:20: error[tsc TS7006]: Parameter 'prev' implicitly has an 'any' type.
+ 58 |       setProfiles((prev) => {
+    |                    ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:59:40: error[tsc TS7006]: Parameter 'p' implicitly has an 'any' type.
+ 59 |         const byId = new Map(prev.map((p) => [p.id, p]));
+    |                                        ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:78:22: error[tsc TS7006]: Parameter 'prev' implicitly has an 'any' type.
+ 78 |         setProfiles((prev) => prev.filter((p) => p.id !== id));
+    |                      ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:78:44: error[tsc TS7006]: Parameter 'p' implicitly has an 'any' type.
+ 78 |         setProfiles((prev) => prev.filter((p) => p.id !== id));
+    |                                            ^
+
+../CloakBrowser-Manager/frontend/src/hooks/useProfiles.ts:133:22: error[tsc TS7006]: Parameter 'prev' implicitly has an 'any' type.
+ 133 |         setProfiles((prev) => [profile, ...prev]);
+     |                      ^
+
+../CloakBrowser-Manager/frontend/src/lib/api.test.ts:1:54: error[tsc TS2307]: Cannot find module 'vitest' or its corresponding type declarations.
+ 1 | import { describe, it, expect, vi, beforeEach } from "vitest";
+   |                                                      ^
+
+../CloakBrowser-Manager/frontend/src/lib/api.test.ts:2:21: error[tsc TS2835]: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './api.js'?
+ 2 | import { api } from "./api";
+   |                     ^
+
+../CloakBrowser-Manager/frontend/src/lib/api.test.ts:106:22: error[tsc TS2552]: Cannot find name 'File'. Did you mean 'file'?
+ 106 |     const file = new File([new Uint8Array([1, 2, 3])], "Q3 report (final).csv", { type: "text/csv" });
+     |                      ^
+
+../CloakBrowser-Manager/frontend/src/lib/api.test.ts:121:43: error[tsc TS2304]: Cannot find name 'File'.
+ 121 |     await api.uploadProfileFile("p1", new File([], "blob.zzz"));
+     |                                           ^
+
+../CloakBrowser-Manager/frontend/src/lib/api.test.ts:127:50: error[tsc TS2304]: Cannot find name 'File'.
+ 127 |     await expect(api.uploadProfileFile("p1", new File([], "big.csv"))).rejects.toThrow(
+     |                                                  ^
+
+../CloakBrowser-Manager/frontend/src/lib/api.ts:171:13: error[tsc TS2304]: Cannot find name 'RequestInit'.
+ 171 |   options?: RequestInit,
+     |             ^
+
+../CloakBrowser-Manager/frontend/src/lib/api.ts:173:21: error[tsc TS2304]: Cannot find name 'fetch'.
+ 173 |   const res = await fetch(path, {
+     |                     ^
+
+../CloakBrowser-Manager/frontend/src/lib/api.ts:255:47: error[tsc TS2304]: Cannot find name 'File'.
+ 255 |   uploadProfileFile: async (id: string, file: File): Promise<ProfileFile> => {
+     |                                               ^
+
+../CloakBrowser-Manager/frontend/src/lib/api.ts:258:23: error[tsc TS2304]: Cannot find name 'fetch'.
+ 258 |     const res = await fetch(`/api/profiles/${id}/files`, {
+     |                       ^
+
+../CloakBrowser-Manager/frontend/src/styles/globals.test.ts:2:26: error[tsc TS2591]: Cannot find name 'node:fs/promises'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+ 2 | import { readFile } from "node:fs/promises";
+   |                          ^
+
+../CloakBrowser-Manager/frontend/src/styles/globals.test.ts:3:31: error[tsc TS2591]: Cannot find name 'node:url'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+ 3 | import { fileURLToPath } from "node:url";
+   |                               ^
+
+../CloakBrowser-Manager/frontend/src/styles/globals.test.ts:4:21: error[tsc TS2307]: Cannot find module 'postcss' or its corresponding type declarations.
+ 4 | import postcss from "postcss";
+   |                     ^
+
+../CloakBrowser-Manager/frontend/src/styles/globals.test.ts:5:49: error[tsc TS2307]: Cannot find module 'vitest' or its corresponding type declarations.
+ 5 | import { beforeAll, describe, expect, it } from "vitest";
+   |                                                 ^
+
+../CloakBrowser-Manager/frontend/src/styles/globals.test.ts:17:34: error[tsc TS2304]: Cannot find name 'URL'.
+ 17 |   const path = fileURLToPath(new URL("./globals.css", import.meta.url));
+    |                                  ^
+
+../CloakBrowser-Manager/frontend/src/styles/globals.test.ts:17:67: error[tsc TS2339]: Property 'url' does not exist on type 'ImportMeta'.
+ 17 |   const path = fileURLToPath(new URL("./globals.css", import.meta.url));
+    |                                                                   ^
+
+../CloakBrowser-Manager/frontend/src/styles/globals.test.ts:23:33: error[tsc TS7006]: Parameter 'rule' implicitly has an 'any' type.
+ 23 |   compiled.walkRules(selector, (rule) => {
+    |                                 ^
+
+../CloakBrowser-Manager/frontend/src/novnc.d.ts:1:1: error[E4001]: port does not translate JavaScript's `module` yet
+ 1 | declare module "@novnc/novnc" {
+   | ^
+    = help: Leave this file in TypeScript and call it from Jac (`neojac docs interop`), or rewrite this part in the mapping's terms (`neojac port --mapping javascript`).
+
+6 sources refused, nothing written for them
+`neojac docs port` says what port translates and what it refuses.

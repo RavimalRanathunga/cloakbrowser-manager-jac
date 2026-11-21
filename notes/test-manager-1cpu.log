@@ -1,5 +1,5 @@
 neojac test: 1 module with tests, 1 to build, on linux-x86_64
 manager.jac: 21 passed
 
-21 passed; 1 of 1 module passed in 11.6s
-EXIT=0 PEAK_SYSTEM_USED_MB=2728 (baseline before: see free)
+21 passed; 1 of 1 module passed in 5.98s
+EXIT=0 PEAK_SYSTEM_USED_MB=2321 (baseline before: see free)

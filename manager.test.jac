@@ -123,6 +123,7 @@ test "update replaces tags" {
     assert len(u.tags) == 1 and u.tags[0].tag == "c" and u.tags[0].color == "red";
     u2 = must(update_profile(p.id, '{"tags": []}'));
     assert len(u2.tags) == 0;
+    assert u2.updated_at == p.updated_at;
 }
 
 test "delete removes profile, files and data dir; 404 after" {

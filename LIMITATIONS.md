@@ -16,8 +16,8 @@ unless marked *docs-only*. Entries are appended as they are hit.
 ## A. `neojac port` / `neojac absorb`
 
 ### L-001 `port` refuses every real file of the backend, whole (blocker for "port first")
-- `neojac port --check ../CloakBrowser-Manager/backend` → every one of the 13 non-empty modules refused,
-  *nothing written*. A file ports whole or not at all, so one `try` discards 1900 lines. Even 39–117 line files
+- `neojac port --check ../CloakBrowser-Manager/backend` → **23 sources refused** (the 13 non-empty modules + the 10 test
+  files), *nothing written* (raw output: `repros/r07-port-raw/backend.txt`). A file ports whole or not at all, so one `try` discards 1900 lines. Even 39–117 line files
   (`env_file.py`, `settings_store.py`, `runtime.py`) are refused.
 - Refusal tally over the backend (E4001/E4005):
 
@@ -39,16 +39,17 @@ unless marked *docs-only*. Entries are appended as they are hit.
   | 2 + 1 | `lambda`; non-`self` first parameter (`@classmethod`); multi-target assignment |
   | 1 | non-constant default (`def f(path: Path = _ENV_PATH)`) — E4005 |
 - Consequence: the backend was hand-written as idiomatic Jac; `port` produced nothing from the real sources.
-  Repro: `repros/` n/a (command above; output summarised in this table).
+  Raw output: `repros/r07-port-raw/backend.txt` (the tally above was counted from it).
 
-### L-002 `port` does succeed on a slimmed pure subset — but its output is not clean under the project's default lint
+### L-002 `port` succeeds on a slimmed pure subset — but its output fails the project's default `check`
 - `ported/src/pure.py` (4 pure helpers lifted from `main.py`, rewritten to port's core) → `neojac port` wrote
-  `ported/pure.jac`; `neojac run` output is **byte-identical** to `python3` (`ported/result.txt`). Good.
-- But: every parameter/return/local is `any`; and with the default lint (`"clean"`) `neojac check pure.jac`
-  fails with W3051 (docstring) and 4× W3055 (inline bodies) — port's docs say it "is checked before it is written",
-  yet its own output fails the project's default check. `neojac fmt --fix` makes it pass by **deleting the docstring
-  and every comment** and moving bodies to `impl/pure.impl.jac` (`ported/pure.jac` before/after in git history).
-  Comments/docstrings of the source are therefore lost irrecoverably by the recommended workflow.
+  `ported/pure.jac`; `neojac run` output is **byte-identical** to `python3` (`ported/result.txt`). Good. Every
+  parameter/return/local is typed `any` (documented).
+- Re-run in a **fresh project whose `jac.toml` has no `[check.lint]`** (`ported/fresh-default-lint.txt`): `port` exits 0 and writes
+  `pure.jac`, then `neojac check pure.jac` → **5 errors** (W3051 docstring, 4× W3055 "body belongs in an impl"). `neojac docs port`
+  says port's output "is checked before it is written"; whatever it checks, it is not the project's default lint, so the
+  first `neojac check` after every port fails. `fmt --fix` makes it pass by **deleting the docstring and every comment**
+  and moving bodies to `impl/pure.impl.jac` (`ported/impl/`, and git history of `ported/pure.jac`) — source comments are lost.
 - Minor: port emitted `parts.append(`int(part))` — a backtick-escaped `int` — for `int(part)`.
 
 ### L-003 `port` cannot read the React/TS frontend (blocker for "port the UI")
@@ -59,6 +60,7 @@ unless marked *docs-only*. Entries are appended as they are hit.
   `tsc TS2304 Cannot find name 'fetch'/'File'`, `TS2835 relative import needs explicit file extension
   (moduleResolution node16/nodenext)`, `TS7006 implicit any`, `TS2307 cannot find 'vitest'`: port type-checks
   with its own tsc settings (no DOM lib, nodenext), not the project's `tsconfig.json`. **(guess)** a fixed config.
+  Raw output: `repros/r07-port-raw/frontend-src.txt` (6 sources refused).
 
 ### L-004 `neojac absorb` is shallow (minor, mostly missing guidance)
 - `neojac absorb dir --tree web` (exit 0) turns `package.json`/lock into `[npm.web]` + `jac.lock` and moves them
@@ -133,25 +135,33 @@ unless marked *docs-only*. Entries are appended as they are hit.
   chunked → `411 a body is read by its Content-Length, not in chunks`. The original streams up to 256 MiB per file
   (`ARTIFACT_MAX_BYTES`), so Jac can hold ≈8 MiB per file. No `multipart`/raw-body upload, no `Content-Disposition` download.
 
-### L-015 No WebSocket server, no raw sockets in a served space (blocker for VNC/CDP proxying) — *docs-only*
-- `neojac docs search websocket` → only a `WebSocket` *client* global in `hermes`. The original's `/vnc` and `/cdp`
+### L-015 No documented way to serve a WebSocket (blocker for VNC/CDP proxying) — *docs-only*
+- Searched, no documented way found: `neojac docs search websocket` → only a `WebSocket` *client* global in `hermes`
+  (also `search "server-sent"`: nothing). The original's `/vnc` and `/cdp`
   WebSockets (and `/cdp/json/*` rewriting reverse proxy, clipboard relay) cannot be served; a custom `transport` plugin
   would mean writing an HTTP/WebSocket server by hand. Not attempted.
 
 ### L-016 Auth model: single shared token vs `accounts` plugin
 - The original's optional single `AUTH_TOKEN` (Bearer header or `auth_token` cookie, `hmac.compare_digest`) has no
   counterpart in the standard `accounts` plugin (username/password + per-caller roots). `Auth.caller(headers)` in a custom
-  plugin could implement it (`neojac docs stdjac.server`). Status: see section F once attempted.
+  plugin does implement it: see L-023 (works, unit-tested) and L-022 (token lives in `localStorage`, not an HttpOnly cookie).
 
 ---
 
 ## D. Python interop (the app's core is `cloakbrowser`, a PyPI package)
 
-### L-017 BUG: `neojac install --pypi "cloakbrowser[geoip]"` writes an invalid requirement (minor)
-- `repros/r06-cloakbrowser/jac.toml` ends with `cloakbrowser = "[geoip]"` — package name and version dropped into the
-  extras string (the installed venv does contain `geoip2`, so the extra was honoured once). A later `neojac install`
-  would read `"[geoip]"` as a version spec. **(guess)** the extras bracket is parsed as the version.
+### L-017 `neojac install --pypi "cloakbrowser[geoip]"` records the requirement as `"[geoip]"` (minor, cosmetic)
+- `repros/r06-cloakbrowser/jac.toml` ends with `cloakbrowser = "[geoip]"` — the extras bracket sits where the version spec
+  belongs. I predicted later installs would choke on it; they **do not**: `neojac install` and `neojac install --frozen` both
+  succeed (`repros/r06-cloakbrowser/reinstall.txt`, 26 distributions incl. `geoip2`, `cloakbrowser 0.7.3`). So the extra was
+  honoured and the file is merely odd/misleading (a human or another tool reading `"[geoip]"` as a version would be wrong).
 - Positive: `import cloakbrowser; print(cloakbrowser.__version__)` works from Jac → `0.7.3` (`import.txt`).
+
+### L-025 Native `shutil.copytree(ignore=...)` is typed `set[str]`; CPython documents any iterable (minor)
+- The original passes `ignore=lambda _d, names: [n for n in names if n in SKIP]` (a list). In Jac:
+  `error[E1053]: copytree()'s parameter 'ignore' expects Callable[[str, list[str]], set[str]], found Callable[[str, list[str]], list[str]]`
+  (seen while porting `_copy_browser_state`). Fixed by returning a set. `neojac docs library` says native modules have
+  "the interface and behavior of CPython's"; this is a (small, deliberate-looking) tightening.
 
 ---
 
@@ -170,24 +180,33 @@ and `/proc/meminfo`:
 | `neojac install` (npm tree, 129 packages) | not measured, ~34 s | |
 | a trivial native app server at rest | 211 MB RSS | |
 
-### L-018 `neojac build <app>` of a trivial app needs ~1.6 GB in one process; the full app's build killed the VM (major on small machines)
-- Building the real app (`manager.jac` ~700 lines) **crashed the WSL VM three times** (the VM restarted: `uptime` 0 min,
-  /tmp wiped) — twice plain, once with a memory watchdog that polls every 0.5 s. A second attempt pinned to 2 CPUs with a
-  0.2 s watchdog was killed by the watchdog at `MemAvailable < 500 MB` (system peak 3306 MB, `notes/r05-build-2cpu.log`),
-  even for the *trivial* 25-line app built from a clean `.jac/`. `taskset -c 0-1` did **not** keep the build under budget,
-  so per-process peak (not CPU fan-out) dominates. **(guess)** whole-program link/CPython embedding, not module count.
-- The equivalent Python backend and its test-suite run in 80 MB. The Rust/C++ toolchain neojac ships (Clang + LLD +
-  runtime) is the cost; there is no documented option to reduce build memory (`neojac help build` has none;
-  `neojac docs search memory|parallel` finds nothing about build memory/jobs).
-- What did work: pinning to **one CPU** (`taskset -c 0`) plus a watchdog (`tools/guarded.sh`, kills the process group at
-  `MemAvailable < 250 MB`) let `neojac test manager.jac` (a ~700-line module + 21 tests) finish with a system peak of
-  2.6–3.0 GB (`notes/test-manager-1cpu.log`, `notes/test-all.log`); the same command pinned to 4 CPUs was killed by the watchdog
-  (`notes/test-manager.log`). So neojac's compile fan-out is memory-bound on a small VM and there is no flag to cap it
-  (**guess:** it uses all online CPUs, here 16).
-- A plugin's unit tests (`token_auth`, which pulls `stdjac.server`) peaked at 3.2 GB system use (`notes/test-token-auth.log`).
-- Impact: iterate with `neojac check` / `neojac test`; the **final `neojac build manager` + `neojac browse` of the page was
-  not run** (user chose test-only after three VM crashes), so the browser space is type-checked (`neojac check --space site`)
-  but never rendered. This is the largest gap in the proof; see README "What is and is not proven".
+### L-018 neojac's native build/test needs 1–1.7 GB in one process and does not fit next to an IDE on a 4 GB VM (major on small machines)
+- Fact (solid): a **trivial 25-line app** `neojac build` has a single-process peak RSS of 1.62–1.66 GB (`/usr/bin/time -v`,
+  `repros/r05-probes`, no CPU pinning, ~1 GB of other use on the machine).
+- The WSL VM **crashed three times** (VM restarted, `uptime` 0 min, `/tmp` wiped): (1) running the r05 probe server
+  (`neojac run api`, which builds) plus curl probes and 18 MB JSON bodies; (2) an unguarded `neojac build manager` with VS Code
+  holding ~2.2 GB; (3) the same build under my first watchdog (0.5 s poll, `/tmp`-based, floor 350 MB). Cause = my guess (OOM),
+  not proven: the VM dies, nothing is logged.
+- Controlled runs afterwards (`tools/guarded.sh`: `taskset -c <cpus>`, polls `/proc/meminfo` every 0.2 s, kills the process group
+  below the floor; logs in `notes/`). These runs differ in cache state and baseline, so they do **not** isolate a cause:
+
+  | command | CPUs | floor | other use before | system peak | outcome |
+  |---|---|---|---|---|---|
+  | `neojac build api` (25-line app, clean `.jac/`) | 0-1 | 500 MB | ~2.2 GB | 3306 MB | killed by watchdog |
+  | `neojac test manager.jac` (700 lines + 21 tests) | 0-3 | 500 MB | ~2.1 GB | 3279 MB | killed by watchdog |
+  | `neojac test manager.jac` | 0 | 250 MB | ~2.0 GB | 3072 / 2656 / 2638 / 2728 / 2321 MB (5 runs, cache warming) | passed |
+  | `neojac test auth.jac` (plugin, pulls `stdjac.server`) | 0 | 250 MB | ~2.0 GB | 3221 MB | passed |
+  | `neojac check <app>` / `neojac test util.jac` | — | — | — | 745 MB / 679 MB single-process RSS | passed |
+  | `neojac run` of 3-line program importing `cloakbrowser` | — | — | — | 910 MB single-process RSS | passed |
+  | original Python: 240 pytest tests | — | — | — | 80 MB | passed |
+
+- Documented controls: none. `neojac help build` has no jobs/memory option; `neojac docs search "parallel"` / `"memory"` find
+  nothing about build parallelism or build memory. **(guess)** it fans out to all 16 online CPUs; the only thing that worked
+  here was pinning with `taskset` plus a lower floor.
+- Impact: iterate with `neojac check` / `neojac test`. The **final `neojac build manager` and `neojac browse` of the page were
+  not run** (the user chose test-only after the crashes), so the browser space is type-checked (`neojac check --space site`)
+  but never rendered, and the new server was never served. The *earlier vertical slice* (same api+site shape, 3 files) did
+  build, serve and render — see README.
 
 ---
 
@@ -209,7 +228,9 @@ and `/proc/meminfo`:
   (5 of my first 21 tests failed for this reason). Isolation is manual (`fresh_data()` in `manager.test.jac` removes every node).
 
 ### L-022 Endpoints cannot read the request (headers, caller, client address) — *docs-only*
-- `neojac docs apps/server` / `stdjac` show no way for an endpoint to see the caller or headers; only `root` is the caller's.
+- Searched, no documented way found (`docs search "request header"`, `"whoami"`, `"current caller"`; read `apps/server`,
+  `stdjac`, `stdjac.server`): an endpoint has no handle on the caller's headers or address; only `root` is the caller's.
+  (`Request` with `headers` exists only as the `transport` plugin's type.)
   The original's `/api/auth/status` (`authenticated: bool`, computed from the request) therefore returns only `auth_required`;
   a page learns whether it is signed in from `GET /__jac/auth/me` / `signed_in()`.
 - The session token is kept in the browser's `localStorage` (`jac_token`) per `neojac docs apps/pages`, not in the original's
@@ -223,7 +244,7 @@ and `/proc/meminfo`:
   points at a worked example only inside neojac's repository (`tests/plugins/ticket_auth`), which the rules forbid reading,
   so the plugin was written from `neojac docs stdjac.server` tables alone (it type-checked first time).
 
-### L-024 `neojac port` is the only entry point to "translate" — nothing for the data model
+### L-024 Pydantic-style data models have no port mapping and no decoder equivalent
 - Pydantic models (`class X(BaseModel)` with annotated fields and validators, 160 of the refusals) have no mapping at all;
   the Jac replacement (`obj` + manual `validate_fields`) had to be designed by hand, and `extra="forbid"`, `Literal[...]`,
   `field_validator`, `model_dump(exclude_unset=True)` have no counterpart in neojac's decoder (L-011/L-012/L-013).

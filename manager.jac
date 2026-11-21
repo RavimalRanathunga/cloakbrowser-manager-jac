@@ -422,7 +422,9 @@ def:protect update_profile(profile_id: str, fields_json: str) -> ProfileReply {
     }
     with lock {
         apply_fields(p, data);
-        p.updated_at = now();
+        if len([k for k in data.keys() if k != "tags"]) > 0 {
+            p.updated_at = now();
+        }
     }
     return ProfileReply(profile=to_out(p));
 }
