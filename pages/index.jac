@@ -17,6 +17,7 @@ def:pub page -> JsxPage {
             r: ProfilesReply = await list_profiles();
             profiles = r.profiles;
             locked = False;
+            error = "";
             st: StatusOut = await system_status();
             summary = str(st.profiles_total) + " profiles, " + str(st.running_count) + " running";
         } except RemoteRejected as e {
@@ -107,7 +108,8 @@ def:pub page -> JsxPage {
     }
 
     async def save_settings {
-        body = '{"license_key": "' + key_draft + '", "release_channel": "' + channel + '"}';
+        safe_key = key_draft.strip().replace("\\", "\\\\").replace('"', '\\"');
+        body = '{"license_key": "' + safe_key + '", "release_channel": "' + channel + '"}';
         st: StatusOut = await put_settings(body);
         error = st.detail if st.status != 200 else "";
         key_draft = "";
@@ -177,7 +179,7 @@ def:pub page -> JsxPage {
                     <p
                         className="dim"
                     >seed {p.fingerprint_seed} · {p.screen_width}x{p.screen_height} · gpu {p.gpu_family} · {p.proxy
-                        if p.proxy is not None
+                        if p.proxy != ""
                         else "no proxy"}</p>
                     <div className="bar">
                         {<button className="primary" onClick={launch}>Launch</button>

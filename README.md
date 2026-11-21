@@ -32,28 +32,31 @@ ORIGINAL_REPO=../CloakBrowser-Manager python3 -I -m pytest parity -q   # the sce
 ```
 
 ## What is and is not proven
-- **Proven (server logic):** 28 Jac tests pass (`manager.jac` 21, `util.jac` 4, `token_auth` 3). 16 scenario tests in `parity/` pass
+- **Server logic (tests):** 28 Jac tests pass (`manager.jac` 21, `util.jac` 4, `token_auth` 3). 16 scenario tests in `parity/` pass
   against the ORIGINAL Python app (on top of the original's own 240-test suite, run green first); the Jac tests encode the same
   expectations (statuses, defaults, 422 rejections, ordering incl. the reorder tie-break, patch/`null` semantics, tag replacement,
   `updated_at` not bumped by a tags-only update, reset/duplicate file effects, settings masking, artifact paths).
-  *The parity is by hand-written mirrored scenarios, not a differential run of both servers against each other.*
-- **Jac tests with no counterpart in the original scenarios:** launch/stop lifecycle and delete-while-running (launch is simulated),
-  duplicate-of-a-running-source → 409, artifact count/size quotas, the plugin's 3 tests, `util` tests.
-- **Proven (toolchain path), earlier vertical slice:** a 3-file api+site app (same archwire shape, `[npm.web]` pinned to vite 7)
-  built, served `POST /__jac/call/api/profiles/...`, kept its graph across a restart and rendered the list in `neojac browse`.
-  That slice was replaced by the real app *before the first commit*, so its files and outputs are **not preserved in this repo**:
-  treat it as an observation from the session, not a reproducible artifact.
-- **Not proven:** the *built* real app was never run (native build exceeds this VM's memory, L-018): `/__jac/call/...` of the
-  final server, `sign_in()` with `token_auth`, and the rendered page are unverified; the browser space is only type-checked.
-  Launch/stop are simulated (state only).
-- HTTP contract differs from the original by necessity (L-009/L-010): RPC endpoints, status carried in reply bodies.
-- To run the server: `CLOAKBROWSER_MANAGER_DATA_DIR=/some/writable/dir` must be set (the original's Linux default `/data` is kept).
+  *Parity is by hand-written mirrored scenarios, not a differential run of both servers.*
+- **The built app was run** (`neojac build manager`, one CPU, memory watchdog; VS Code closed). Evidence is in `notes/`:
+  `smoke.txt` (HTTP: 401 without/with wrong token, login right/wrong, Bearer and `auth_token` cookie accepted, create, `proxy: null`
+  update clears the proxy, upload), `smoke2.txt` (data survives a restart), `browse-*.txt` (headless Chrome driven by `neojac browse`:
+  plugin-generated sign-in form, wrong token → "Invalid token", right token → profile list, select, Launch/Stop, create via the form
+  with `Shop "A" \ test`, Duplicate, Settings → masked key `cb_ab…mnop`, Delete, no console errors).
+- **Not proven / not ported:** launch/stop are simulated (state only, no browser, no VNC/CDP); file upload/download UI, drag-reorder
+  and noVNC are not in the UI; WebSocket proxies, proxy test, update check not ported (see the matrix in `LIMITATIONS.md`).
+- Jac tests with no counterpart in the original scenarios: launch lifecycle, delete-while-running, duplicate-of-running → 409,
+  artifact quotas, plugin and helper tests.
+- **API differences by necessity:** RPC endpoints (`POST /__jac/call/api/manager/<fn>`), status carried in reply bodies (L-009/L-010),
+  `""` instead of `null` for optional strings (L-026), files ≤ ~8 MiB (L-014).
 
-## To finish the proof (needs memory — please close VS Code, then say "go")
+## Run it
 ```sh
-taskset -c 0 tools/guarded.sh notes/build.log 0 "neojac build manager"       # watchdog kills at <250 MB free
-CLOAKBROWSER_MANAGER_DATA_DIR=/tmp/cbm AUTH_TOKEN=s3cret JAC_MANAGER_LISTEN=127.0.0.1:8311 dist/manager-linux-x86_64/manager &
-curl -s -X POST :8311/__jac/call/api/manager/list_profiles -d '{}'      # expect 401 (no token)
-curl -s -X POST :8311/__jac/auth/login -d '{"token":"s3cret"}'           # then Bearer calls: create, list, update {"proxy": null}
-neojac browse open 127.0.0.1:8311/ ; neojac browse snapshot              # the page
+# build needs ~2.2 GB system peak: close the IDE; on a 4 GB machine:
+taskset -c 0 tools/guarded.sh notes/build.log 0 "neojac build manager"
+CLOAKBROWSER_MANAGER_DATA_DIR=/tmp/cbm/files JAC_MANAGER_DATA=/tmp/cbm/data JAC_MANAGER_LISTEN=127.0.0.1:8311 \
+  AUTH_TOKEN=s3cret dist/manager-linux-x86_64/manager        # omit AUTH_TOKEN for the open local-dev mode
+curl -s -X POST 127.0.0.1:8311/__jac/call/api/manager/list_profiles -d '{}'                       # 401
+curl -s -H 'Authorization: Bearer s3cret' -X POST 127.0.0.1:8311/__jac/call/api/manager/list_profiles -d '{}'
+neojac browse open 127.0.0.1:8311/ && neojac browse snapshot
 ```
+(`CLOAKBROWSER_MANAGER_DATA_DIR` must be writable; the original's Linux default is `/data`.)

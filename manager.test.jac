@@ -42,7 +42,7 @@ test "create applies the original defaults" {
         and not p.auto_launch
         and not p.transparent_proxy
         and not p.portable_cookies;
-    assert p.status == "stopped" and p.cdp_url is None and p.launch_args == [];
+    assert p.status == "stopped" and p.cdp_url == "" and p.launch_args == [];
     assert 10000 <= p.fingerprint_seed <= 99999;
     assert p.user_data_dir.endswith("/profiles/" + p.id);
 }
@@ -64,7 +64,7 @@ test "create with all fields round-trips" {
     assert len(p.tags) == 2
         and p.tags[0].tag == "t1"
         and p.tags[0].color == "#fff"
-        and p.tags[1].color is None;
+        and p.tags[1].color == "";
 }
 
 test "invalid values and unknown fields are rejected with 422" {
@@ -107,7 +107,7 @@ test "update is a patch: absent keeps, null clears" {
     fresh_data();
     p = mk("A", ', "proxy": "http://h:1", "notes": "keep", "launch_args": ["--x"]');
     u = must(update_profile(p.id, '{"name": "B", "proxy": null}'));
-    assert u.name == "B" and u.proxy is None;
+    assert u.name == "B" and u.proxy == "";
     assert u.notes == "keep" and u.launch_args == ["--x"];
     assert u.updated_at >= p.updated_at;
     assert update_profile("nope", '{"name": "x"}').status == 404;
@@ -228,7 +228,7 @@ test "duplicate: running source refused for state copy, allowed for config; unkn
 test "settings: masked key, channel, clear, bad channel" {
     fresh_data();
     s = get_settings();
-    assert not s.license_key_set and s.license_key_masked is None and s.release_channel == "stable";
+    assert not s.license_key_set and s.license_key_masked == "" and s.release_channel == "stable";
     st = put_settings('{"license_key": "cb_abcdefghijklmnop", "release_channel": "Preview"}');
     assert st.status == 200;
     s2 = get_settings();

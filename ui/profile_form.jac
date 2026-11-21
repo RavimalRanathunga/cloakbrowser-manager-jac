@@ -1,6 +1,5 @@
 """Create / edit a profile: the common fields, serialised to the JSON the server validates."""
 
-import json;
 
 def:pub ProfileForm(initial: ProfileOut | None, on_save: any, on_cancel: any) -> JsxElement {
     has name: str = initial.name if initial is not None else "";
@@ -16,21 +15,28 @@ def:pub ProfileForm(initial: ProfileOut | None, on_save: any, on_cancel: any) ->
     has notes: str = initial.notes if initial is not None and initial.notes is not None else "";
     has tags_text: str = ", ".join([t.tag for t in initial.tags]) if initial is not None else "";
 
+    def jstr(text: str) -> str {
+        t = text.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
+        return '"' + t + '"';
+    }
+
+    def jopt(text: str) -> str {
+        if text.strip() == "" {
+            return "null";
+        }
+        return jstr(text.strip());
+    }
+
+    def jbool(flag: bool) -> str {
+        return "true" if flag else "false";
+    }
+
     def submit(e: any) {
         e.preventDefault();
-        fields: dict[str, any] = {
-            "name": name.strip(),
-            "proxy": proxy.strip() if proxy.strip() != "" else None,
-            "timezone": timezone.strip() if timezone.strip() != "" else None,
-            "locale": locale.strip() if locale.strip() != "" else None,
-            "gpu_family": gpu,
-            "search_engine": engine,
-            "humanize": humanize,
-            "auto_launch": auto_launch,
-            "notes": notes if notes.strip() != "" else None,
-            "tags": [{"tag": t.strip()} for t in tags_text.split(",") if t.strip() != ""],
-        };
-        on_save(json.dumps(fields));
+        tag_items = [t.strip() for t in tags_text.split(",") if t.strip() != ""];
+        tags_json = "[" + ", ".join(['{"tag": ' + jstr(t) + '}' for t in tag_items]) + "]";
+        body = '{"name": ' + jstr(name.strip()) + ', "proxy": ' + jopt(proxy) + ', "timezone": ' + jopt(timezone) + ', "locale": ' + jopt(locale) + ', "gpu_family": ' + jstr(gpu) + ', "search_engine": ' + jstr(engine) + ', "humanize": ' + jbool(humanize) + ', "auto_launch": ' + jbool(auto_launch) + ', "notes": ' + jopt(notes) + ', "tags": ' + tags_json + '}';
+        on_save(body);
     }
 
     return <form className="panel" onSubmit={submit}>

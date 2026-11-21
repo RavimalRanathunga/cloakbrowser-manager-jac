@@ -1,0 +1,18 @@
+## open (AUTH_TOKEN set, not signed in)
+http://127.0.0.1:8311/
+- heading "CloakBrowser Manager" [level=1] [ref=e1]
+- paragraph: This Manager needs an access token.
+- button "Sign in" [ref=e2]
+- paragraph: This needs a signed-in caller.
+## click Sign in
+- heading "CloakBrowser Manager" [level=1] [ref=e1]
+- paragraph: This Manager needs an access token.
+- button "Sign in" [ref=e2]
+- paragraph: This needs a signed-in caller.
+- dialog
+  - form
+    - text: Access token
+    - textbox "Access token" [focused] [ref=e3]
+    - alert
+    - button "Cancel" [ref=e4]
+    - button "Sign in" [ref=e5]

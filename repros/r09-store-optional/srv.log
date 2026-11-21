@@ -1,0 +1,2 @@
+listening on http://127.0.0.1:8331/
+endpoint /__jac/call/api/svc/names failed: DataError: /tmp/r09/graph.db holds a svc.Item node, 5a803db764b904bb0000000000000003, which no longer fits its type (.opt_str: expected a str, got None)

@@ -3,3 +3,4 @@ dist/
 eco/*/node_modules/
 eco/*/package.json
 eco/*/package-lock.json
+notes/server*.pid

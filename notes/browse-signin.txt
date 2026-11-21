@@ -1,0 +1,19 @@
+## wrong token first
+  - form
+    - text: Access token
+    - textbox "Access token" [ref=e3]: •••••
+      - text: •••••
+    - alert: Invalid token
+    - button "Cancel" [ref=e4]
+    - button "Sign in" [focused] [ref=e5]
+## right token
+- heading "CloakBrowser Manager" [level=1] [ref=e1]
+- paragraph: This Manager needs an access token.
+- button "Sign in" [ref=e2]
+- paragraph: This needs a signed-in caller.
+---errors
+If: .profiles[0].timezone: expected a str, got None
+    at Qb (http://127.0.0.1:8311/assets/index-CtTYmZ7e.js:13:23246)
+    at qi (http://127.0.0.1:8311/assets/pages-BgvTvGhn.js:1:41786)
+    at http://127.0.0.1:8311/assets/pages-BgvTvGhn.js:1:40702
+    at Generator.next (<anonymous>)

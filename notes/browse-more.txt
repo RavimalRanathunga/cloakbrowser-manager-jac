@@ -1,0 +1,19 @@
+## Duplicate
+  - text: Shop "A" \ test (copy)
+  - text: 3 profiles, 0 running
+## Settings
+  - heading "License" [level=2] [ref=e4]
+    - text: Current key:
+  - text: License key
+  - textbox [ref=e5]
+  - combobox [collapsed] [ref=e6]: stable
+    - text: Current key:
+    - text: cb_ab…mnop
+## Delete
+  - text: Shop "A" \ test
+  - text: shop
+  - text: eu
+  - text: seeded
+  - text: work
+  - text: 2 profiles, 0 running
+---errors

@@ -1,0 +1,8 @@
+## 1st run: add, names
+{"ok": true, "data": 1}
+{"ok": true, "data": ["a"]}
+## after restart: names
+{"ok": false, "kind": "failed", "detail": "names failed"} [http 500]
+## server log
+listening on http://127.0.0.1:8331/
+endpoint /__jac/call/api/svc/names failed: DataError: /tmp/r09/graph.db holds a svc.Item node, 5a803db764b904bb0000000000000003, which no longer fits its type (.opt_str: expected a str, got None)

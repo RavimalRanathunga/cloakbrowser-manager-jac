@@ -1,0 +1,4 @@
+listening on http://127.0.0.1:8311/
+endpoint /__jac/call/api/manager/list_profiles failed: DataError: /tmp/cbm/data/graph.db holds a manager.Profile node, cfe58e52374d9f690000000000000004, which no longer fits its type (.proxy: expected a str, got None)
+endpoint /__jac/call/api/manager/system_status failed: DataError: /tmp/cbm/data/graph.db holds a manager.Profile node, cfe58e52374d9f690000000000000004, which no longer fits its type (.proxy: expected a str, got None)
+endpoint /__jac/call/api/manager/list_profiles failed: DataError: /tmp/cbm/data/graph.db holds a manager.Profile node, cfe58e52374d9f690000000000000004, which no longer fits its type (.proxy: expected a str, got None)

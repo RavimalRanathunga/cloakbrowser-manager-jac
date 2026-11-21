@@ -1,0 +1,12 @@
+http://127.0.0.1:8311/
+## after sign-in
+- complementary
+  - heading "CloakBrowser Manager" [level=1] [ref=e1]
+  - button "+ New profile" [ref=e2]
+  - text: seeded
+  - text: work
+- main
+  - text: 1 profiles, 0 running
+  - button "Settings" [ref=e3]
+  - paragraph: This needs a signed-in caller.
+## errors

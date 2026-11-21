@@ -103,7 +103,7 @@ edge HasFile: Profile --> Artifact {}
 
 node Tag {
     has tag: str,
-        color: str | None = None;
+        color: str = "";
 }
 
 node Artifact {
@@ -111,7 +111,7 @@ node Artifact {
         size: int,
         kind: str = "upload",
         state: str = "ready",
-        content_type: str | None = None,
+        content_type: str = "",
         created_at: str = "",
         picker_name: str = "";
 }
@@ -119,9 +119,9 @@ node Artifact {
 node Profile {
     has name: str,
         fingerprint_seed: int,
-        proxy: str | None = None,
-        timezone: str | None = None,
-        locale: str | None = None,
+        proxy: str = "",
+        timezone: str = "",
+        locale: str = "",
         screen_width: int = 1920,
         screen_height: int = 1080,
         gpu_family: str = "auto",
@@ -130,7 +130,7 @@ node Profile {
         geoip: bool = True,
         clipboard_sync: bool = True,
         auto_launch: bool = False,
-        color_scheme: str | None = None,
+        color_scheme: str = "",
         launch_args: list[str] = [],
         extension_paths: list[str] = [],
         allow_3p_cookies: bool = True,
@@ -139,7 +139,7 @@ node Profile {
         restore_session: bool = True,
         transparent_proxy: bool = False,
         portable_cookies: bool = False,
-        notes: str | None = None,
+        notes: str = "",
         user_data_dir: str = "",
         created_at: str = "",
         updated_at: str = "",
@@ -150,6 +150,8 @@ node Settings {
     has license_key: str = "",
         release_channel: str = "stable";
 }
+
+glob OPTIONAL_KEYS: set[str] = {"proxy", "timezone", "locale", "color_scheme", "notes"};
 
 def now -> str {
     return datetime.datetime.now(datetime.timezone.utc).isoformat();
@@ -185,7 +187,7 @@ def to_out(p: Profile) -> ProfileOut {
     pid = jid(p);
     tags = [TagOut(tag=t.tag, color=t.color) for t in [p ->:HasTag:->]];
     is_running = pid in running;
-    cdp: str | None = None;
+    cdp = "";
     if is_running {
         cdp = "/api/profiles/" + pid + "/cdp";
     }
@@ -327,7 +329,7 @@ def set_tags(p: Profile, tags: any) {
         return;
     }
     for item in tags {
-        color: str | None = None;
+        color = "";
         if "color" in item and item["color"] is not None {
             color = item["color"];
         }
@@ -343,6 +345,8 @@ def apply_fields(p: Profile, data: dict[str, any]) {
             if value is not None {
                 p.fingerprint_seed = value;
             }
+        } elif key in OPTIONAL_KEYS and value is None {
+            setattr(p, key, "");
         } else {
             setattr(p, key, value);
         }
@@ -621,6 +625,14 @@ def:protect system_status -> StatusOut {
     return StatusOut(running_count=len(running), profiles_total=len(all_profiles()));
 }
 
+def masked_or_empty(key: str | None) -> str {
+    masked = mask_key(key);
+    if masked is None {
+        return "";
+    }
+    return masked;
+}
+
 def:protect get_settings -> SettingsOut {
     load_settings();
     key: str | None = None;
@@ -632,7 +644,7 @@ def:protect get_settings -> SettingsOut {
         channel = live_channel;
     }
     return SettingsOut(
-        license_key_set=live_key != "", license_key_masked=mask_key(key), release_channel=channel
+        license_key_set=live_key != "", license_key_masked=masked_or_empty(key), release_channel=channel
     );
 }
 

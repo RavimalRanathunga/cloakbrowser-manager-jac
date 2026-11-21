@@ -1,0 +1,20 @@
+## health (pub)
+{"ok": true, "data": "ok"}
+## auth_status (pub)
+{"ok": true, "data": {"auth_required": true, "authenticated": false}}
+## list_profiles, NO token
+{"ok": false, "kind": "rejected", "detail": "This needs a signed-in caller."} [http 401]
+## list_profiles, WRONG token
+{"ok": false, "kind": "rejected", "detail": "This needs a signed-in caller."} [http 401]
+## login right token
+{"ok": true, "data": {"user": "operator", "token": "s3cret", "name": ""}}
+## login wrong token
+{"ok": false, "kind": "rejected", "detail": "Invalid token"} [http 400]
+## create
+{"ok": true, "data": {"status": 201, "detail": "", "profile": {"id": "cfe58e52374d9f690000000000000004", "name": "alpha", "fingerprint_seed": 58556, "proxy": "http://h:1", "timezone": null, "locale": null, "screen_width": 1920, "screen_height": 1080, "gpu_family": "auto", "humanize": false, "human_preset": "default", "geoip": true, "clipboard_sync": true, "auto_launch": false, "color_scheme": null, "launch_args": [], "extension_paths": [], "allow_3p_cookies": true, "search_engine": "google", "capture_preview": true, "restore_session": true, "transparent_proxy": false, "portable_cookies": false, "notes": null, "user_data_dir": "/tmp/cbm/files/profiles/cfe58e52374d9f690000000000000004", "created_at": "2026-11-21T12:43:51.484794+00:00", "updated_at": "2026-11-21T12:43:51.484794+00:00", "sort_order": 0, "tags": [{"tag": "t", "color": null}], "status": "stopped", "runtime_mode": "docker", "viewer_mode": "vnc", "vnc_ws_port": null, "cdp_url": null}}} [http 200]
+## update proxy:null
+{"ok": true, "data": {"status": 200, "detail": "", "profile": {"id": "cfe58e52374d9f690000000000000004", "name": "alpha", "fingerprint_seed": 58556, "proxy": null, "timezone": null, "locale": null, "screen_width": 1920, "screen_height": 1080, "gpu_family": "auto", "humanize": false, "human_preset": "default", "geoip": true, "clipboard_sync": true, "auto_launch": false, "color_scheme": null, "launch_args": [], "extension_paths": [], "allow_3p_cookies": true, "search_engine": "google", "capture_preview": true, "restore_session": true, "transparent_proxy": false, "portable_cookies": false, "notes": null, "user_data_dir": "/tmp/cbm/files/profiles/cfe58e52374d9f690000000000000004", "created_at": "2026-11-21T12:43:51.484794+00:00", "updated_at": "2026-11-21T12:43:51.554141+00:00", "sort_order": 0, "tags": [{"tag": "t", "color": null}], "status": "stopped", "runtime_mode": "docker", "viewer_mode": "vnc", "vnc_ws_port": null, "cdp_url": null}}}
+## cookie auth
+{"ok": true, "data": {"status": 200, "detail": "", "running_count": 0, "binary_version": "", "license_tier": "none", "profiles_total": 1, "host_os": "linux", "runtime_mode": "docker", "viewer_mode": "vnc"}} [http 200]
+## upload+download
+{"ok": true, "data": {"status": 201, "detail": "", "artifact": {"id": "cfe58e52374d9f690000000000000008", "profile_id": "cfe58e52374d9f690000000000000004", "name": "a.txt", "size": 5, "kind": "upload", "state": "ready", "content_type": null, "created_at": "2026-11-21T12:43:51.567085+00:00", "picker_

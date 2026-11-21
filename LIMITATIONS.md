@@ -111,7 +111,7 @@ unless marked *docs-only*. Entries are appended as they are hit.
 - `neojac docs apps/server`: a raising endpoint answers 500 `"<name> failed"`, detail only on the server's log; there
   is no way to answer 404/409 with a message. Every endpoint of the port therefore returns a reply object with `status`.
 
-### L-011 BUG: `str | None` parameter rejects JSON `null`; `int | None` accepts it (major)
+### L-011 BUG: `str | None` rejects `None`/JSON `null` as an argument (and see L-026 for results and the store); `int | None` accepts it (major)
 - Docs: "`null` is `None` for a parameter whose type admits `None`". Observed (`repros/r05-probes/result.txt`, `result2.txt`):
   `def f(a: str | None = None)` called with `{"a": null}` → `400 rejected "expected a str, got None"`;
   `def f(a: str | None)` same; **but** `def f(n: int | None = None)` with `{"n": null}` → ok. Same for an `obj` field
@@ -203,10 +203,10 @@ and `/proc/meminfo`:
 - Documented controls: none. `neojac help build` has no jobs/memory option; `neojac docs search "parallel"` / `"memory"` find
   nothing about build parallelism or build memory. **(guess)** it fans out to all 16 online CPUs; the only thing that worked
   here was pinning with `taskset` plus a lower floor.
-- Impact: iterate with `neojac check` / `neojac test`. The **final `neojac build manager` and `neojac browse` of the page were
-  not run** (the user chose test-only after the crashes), so the browser space is type-checked (`neojac check --space site`)
-  but never rendered, and the new server was never served. The *earlier vertical slice* (same api+site shape, 3 files) did
-  build, serve and render — see README.
+- **Update after the user closed VS Code (baseline 0.77 GB used instead of ~2.2 GB):** the full app (`neojac build manager`, native
+  server + vite bundle of the site) built pinned to one CPU with the watchdog at 300 MB and a **system peak of 2.2 GB** (1.2 GB when the
+  cache was warm) — `notes/build-final.log`; `neojac browse` (headless Chrome) added ~0.2 GB. So the toolchain *does* fit in 4 GB, but
+  not next to a ~2 GB IDE server; on this VM the build is only usable with the IDE closed. The crashes above were VS Code + build.
 
 ---
 
@@ -262,3 +262,30 @@ and `/proc/meminfo`:
 | `test-proxy`, update-check, open-external, shutdown | **not ported** | need outbound HTTP + request origin (L-022); low value |
 | Browser-download capture (`downloads.py`), file-chooser bookmarks (`artifacts.sync_picker_view`) | **not ported** | belong to the live browser container |
 | React UI (15 components, drag-and-drop, noVNC viewer) | **partial**: login gate, profile list, create/edit form, settings, files list/delete, launch/stop in Jac JSX; *type-checked, never rendered*; no drag-reorder, no file upload/download UI, no noVNC | L-003, memory (L-018) |
+
+### L-026 BUG (major): a `str | None` field cannot hold `None` — not in a result a page decodes, and not in the graph store
+- Same defect as L-011, found twice more once the app was built and run:
+  1. **Store.** A `node` with `has opt_str: str | None = None;` is written fine; after the server restarts every read fails:
+     `DataError: .../graph.db holds a svc.Item node, ..., which no longer fits its type (.opt_str: expected a str, got None)` and the
+     endpoint answers 500. An `int | None = None` field on the same node loads fine. Minimal repro: `repros/r09-store-optional/`
+     (`result.txt`, saved server log). This one is data-destroying in effect: a profile with no proxy makes the whole app unreadable
+     after the first restart (seen in the real app, `notes/smoke2.txt`, before the workaround).
+  2. **Client decode.** A page awaiting a function whose result has `timezone: str | None = None` (value `None`) raises
+     `.profiles[0].timezone: expected a str, got None` in the browser console (`notes/browse-signin.txt`); the server had encoded `null` happily.
+- **Workaround used:** every optional string is a plain `str` where `""` means "none" (graph fields, reply objects). The Jac API
+  therefore returns `""` where the original returned `null` (`proxy`, `timezone`, `locale`, `color_scheme`, `notes`, `cdp_url`,
+  tag `color`, artifact `content_type`, `license_key_masked`), a visible contract difference (an empty `proxy` string cannot be told from none).
+- Docs say `null` is `None` for a parameter "whose type admits None"; nothing documents that `str | None` is the exception.
+  **(guess)** the decoder tries the `str` branch of the union before the `None` branch for strings only.
+
+### L-027 BUG (major): `import json` in a browser-space module passes `neojac check --space site` but fails the bundle
+- `neojac check --space site`: clean. `neojac build manager`: `[vite]: Rollup failed to resolve import "@jac/runtime/lib/json" from
+  ".../eco/web/.jac/build/manager/site/src/ui/profile_form.jsx"` (`repros/r08-json-browser/build-output.txt`). The docs say a *node* space
+  refuses these modules with E1540 (`apps/hosts`); a *browser* space gets no such diagnostic and no doc says which native modules it has.
+- Workaround: a hand-written JSON string builder in the form (escapes `\`, `"`, newline, CR, tab); verified in the browser with a name
+  containing quotes and a backslash (`notes/browse-create.txt`).
+- The build prints a ~30-line Node stack trace for this; the useful line is the first.
+
+### L-028 `neojac browse` accepts CSS selectors and `@eN` refs only (minor, docs)
+- `neojac browse click 'text=Launch'` → `SyntaxError: ... 'text=Launch' is not a valid selector` (Playwright-style selectors are a
+  common guess; `neojac docs browse` lists the supported forms). Noted only because the skill suggests "a CSS selector".

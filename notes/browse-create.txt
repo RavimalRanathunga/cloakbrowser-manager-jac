@@ -1,0 +1,16 @@
+## after Save
+- complementary
+  - heading "CloakBrowser Manager" [level=1] [ref=e1]
+  - button "+ New profile" [ref=e2]
+  - text: Shop "A" \ test
+  - text: shop
+  - text: eu
+  - text: seeded
+  - text: work
+- main
+  - text: 2 profiles, 0 running
+  - button "Settings" [ref=e3]
+  - heading "Shop \"A\" \\ test stopped" [level=2] [ref=e4]
+  - paragraph
+    - text: seed
+---errors

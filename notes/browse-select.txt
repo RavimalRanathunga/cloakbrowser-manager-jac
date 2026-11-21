@@ -1,0 +1,32 @@
+## select profile (row)
+- main
+  - text: 1 profiles, 0 running
+  - button "Settings" [ref=e3]
+  - paragraph: This needs a signed-in caller.
+  - heading "seeded stopped" [level=2] [ref=e4]
+  - paragraph
+    - text: seed
+    - text: 23513
+    - text: ·
+    - text: 1920
+    - text: x
+    - text: 1080
+    - text: · gpu
+    - text: auto
+    - text: ·
+    - text: no proxy
+  - button "Launch" [ref=e5]
+  - button "Edit" [ref=e6]
+  - button "Duplicate" [ref=e7]
+  - button "Reset" [ref=e8]
+  - button "Delete" [ref=e9]
+  - heading "Files" [level=3] [ref=e10]
+## Launch
+  - text: 1 profiles, 1 running
+  - heading "seeded running" [level=2] [ref=e4]
+  - button "Stop" [focused] [ref=e5]
+## Stop
+  - text: 1 profiles, 0 running
+  - heading "seeded stopped" [level=2] [ref=e4]
+  - button "Launch" [focused] [ref=e5]
+---errors

@@ -1,0 +1,9 @@
+## create 2 profiles (one with every optional left None, one with proxy/notes/tag color)
+{"ok": true, "data": {"status": 201, "detail": "", "profile": {"id": "8a3e2b3243
+{"ok": true, "data": {"status": 201, "detail": "", "profile": {"id": "8a3e2b3243
+## list before restart
+[('rich', 'http://h:1', 'line1\nline2', [('t', '#fff')]), ('plain', None, None, [])]
+## list AFTER RESTART
+[('rich', 'http://h:1', 'line1\nline2', [('t', '#fff')]), ('plain', None, None, [])]
+## system_status after restart
+{"ok": true, "data": {"status": 200, "detail": "", "running_count": 0, "binary_version": "", "license_tier": "none", "pr

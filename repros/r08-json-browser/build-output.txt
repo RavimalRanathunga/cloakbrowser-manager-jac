@@ -1,0 +1,17 @@
+✗ Build failed in 296ms
+error during build:
+[vite]: Rollup failed to resolve import "@jac/runtime/lib/json" from "/home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/.jac/build/manager/site/src/ui/profile_form.jsx".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+    at viteLog (file:///home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/node_modules/vite/dist/node/chunks/config.js:33885:57)
+    at file:///home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/node_modules/vite/dist/node/chunks/config.js:33919:73
+    at onwarn (file:///home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/node_modules/@vitejs/plugin-react/dist/index.js:76:7)
+    at file:///home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/node_modules/vite/dist/node/chunks/config.js:33919:28
+    at onRollupLog (file:///home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/node_modules/vite/dist/node/chunks/config.js:33914:63)
+    at onLog (file:///home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/node_modules/vite/dist/node/chunks/config.js:33717:4)
+    at file:///home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/node_modules/rollup/dist/es/shared/node-entry.js:22957:32
+    at Object.logger [as onLog] (file:///home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/node_modules/rollup/dist/es/shared/node-entry.js:24954:9)
+    at ModuleLoader.handleInvalidResolvedId (file:///home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/node_modules/rollup/dist/es/shared/node-entry.js:23696:26)
+    at file:///home/ravimal/internship-projects/neojac-experiments/cloakbrowser-manager-jac/eco/web/node_modules/rollup/dist/es/shared/node-entry.js:23654:26
+EXIT=1 PEAK_SYSTEM_USED_MB=1118 (baseline before: see free)

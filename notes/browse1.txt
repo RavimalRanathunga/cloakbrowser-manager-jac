@@ -1,0 +1,10 @@
+CloakBrowser Manager
+http://127.0.0.1:8311/
+- complementary
+  - heading "CloakBrowser Manager" [level=1] [ref=e1]
+  - button "+ New profile" [ref=e2]
+- main
+  - button "Settings" [ref=e3]
+---errors
+Nv: list_profiles failed
+    at Vb (http://127.0.0.1:8311/assets/index-CtTYmZ7e.js:13:23825)

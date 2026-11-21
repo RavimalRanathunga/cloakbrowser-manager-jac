@@ -1,0 +1,4 @@
+[project]
+name = "r09"
+[check.lint]
+select = ["style"]

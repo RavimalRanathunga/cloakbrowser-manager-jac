@@ -2,16 +2,16 @@
 
 obj TagOut {
     has tag: str,
-        color: str | None = None;
+        color: str = "";
 }
 
 obj ProfileOut {
     has id: str,
         name: str,
         fingerprint_seed: int,
-        proxy: str | None = None,
-        timezone: str | None = None,
-        locale: str | None = None,
+        proxy: str = "",
+        timezone: str = "",
+        locale: str = "",
         screen_width: int = 1920,
         screen_height: int = 1080,
         gpu_family: str = "auto",
@@ -20,7 +20,7 @@ obj ProfileOut {
         geoip: bool = True,
         clipboard_sync: bool = True,
         auto_launch: bool = False,
-        color_scheme: str | None = None,
+        color_scheme: str = "",
         launch_args: list[str] = [],
         extension_paths: list[str] = [],
         allow_3p_cookies: bool = True,
@@ -29,7 +29,7 @@ obj ProfileOut {
         restore_session: bool = True,
         transparent_proxy: bool = False,
         portable_cookies: bool = False,
-        notes: str | None = None,
+        notes: str = "",
         user_data_dir: str = "",
         created_at: str = "",
         updated_at: str = "",
@@ -39,7 +39,7 @@ obj ProfileOut {
         runtime_mode: str = "docker",
         viewer_mode: str = "vnc",
         vnc_ws_port: int | None = None,
-        cdp_url: str | None = None;
+        cdp_url: str = "";
 }
 
 obj ArtifactOut {
@@ -49,7 +49,7 @@ obj ArtifactOut {
         size: int,
         kind: str,
         state: str,
-        content_type: str | None = None,
+        content_type: str = "",
         created_at: str = "",
         picker_name: str = "",
         container_path: str = "";
@@ -100,8 +100,8 @@ obj LaunchReply {
         runtime_mode: str = "docker",
         viewer_mode: str = "vnc",
         vnc_ws_port: int | None = None,
-        display: str | None = None,
-        cdp_url: str | None = None;
+        display: str = "",
+        cdp_url: str = "";
 }
 
 obj StatusOut {
@@ -120,7 +120,7 @@ obj SettingsOut {
     has status: int = 200,
         detail: str = "",
         license_key_set: bool = False,
-        license_key_masked: str | None = None,
+        license_key_masked: str = "",
         release_channel: str = "stable";
 }
 
